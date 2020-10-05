@@ -1,0 +1,96 @@
+body {
+	color: black;
+	font-family: monospace;
+}
+
+h1, h2, h3, h4, h5, h6, h7, h8, h9 {
+	padding: 0px;
+	margin: 0px;
+
+	margin-bottom: 5px;
+}
+p {
+	padding: 0px;
+	margin: 5px 0px 5px 0px;
+}
+
+table {
+	text-align: left;
+}
+table tr:hover {
+	background-color: #e3e3e3;
+}
+table td {
+	padding: 0.15em 0.5em;
+}
+table.commits td.date {
+	font-style: italic;
+	color: gray;
+}
+table.commits td.description {
+	min-width: 32em;
+}
+table.commits td.author {
+	color: gray;
+}
+
+#tree ul {
+	list-style-type: none;
+	padding: 0px 5px 0px 5px;
+}
+#tree li {
+	padding: 1px 0px 1px 0px;
+}
+
+a {
+	color: black;
+	text-decoration: none;
+}
+a.directory {
+	color: #038;
+}
+a:hover {
+	color: #800;
+	text-decoration: underline;
+}
+
+header, main section {
+	padding: 10px;
+}
+header pre {
+	color: #777;
+
+	padding: 0px;
+	margin: 0px;
+}
+section, header {
+	padding: 10px 10px 10px 10px;
+}
+
+header section {
+	padding: 0px;
+	margin: 5px 0px 5px 0px;
+}
+header section h2 {
+	font-size: 12px;
+	display: inline;
+}
+header nav {
+	display: inline-block;
+	list-style-type: none;
+}
+header nav a#current {
+	color: IndianRed;
+	font-weight: bold;
+}
+header nav a:not(:last-child) {
+	padding-right: 7.5px;
+	border-right: 1px solid #ccc;
+}
+
+header {
+	border-bottom: 3px solid #ccc;
+}
+main section:not(:last-child) {
+	border-bottom: 3px solid #ccc;
+}
