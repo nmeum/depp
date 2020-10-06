@@ -4,11 +4,17 @@ import (
 	// "github.com/libgit2/git2go/v28"
 
 	"flag"
-	"os"
-	"log"
-	"path/filepath"
 	"html/template"
+	"log"
+	"os"
+	"path/filepath"
 )
+
+type GitRepo struct {
+	Title    string
+	URL      string
+	Branches []string
+}
 
 var templateFiles = []string{
 	"./tmpl/base.tmpl",
@@ -19,11 +25,11 @@ var templateFiles = []string{
 }
 
 var (
-	commits = flag.Int("-c", 5, "amount of recent commits to include")
+	commits     = flag.Int("-c", 5, "amount of recent commits to include")
 	destination = flag.String("-d", "./www", "output directory for HTML files")
 )
 
-func buildPage(outDir string) error {
+func buildPage(outDir string, repo *GitRepo) error {
 	tmpl, err := template.ParseFiles(templateFiles...)
 	if err != nil {
 		return err
@@ -36,7 +42,7 @@ func buildPage(outDir string) error {
 	}
 	defer file.Close()
 
-	err = tmpl.Execute(file, nil)
+	err = tmpl.Execute(file, repo)
 	if err != nil {
 		return err
 	}
@@ -48,7 +54,18 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 	flag.Parse()
 
-	err := buildPage(*destination)
+	repo := GitRepo{
+		Title: "Some Repository",
+		URL:   "git://git.8pit.net",
+		Branches: []string{
+			"master",
+			"next",
+			"feature/foobar",
+			"feature/barfoo",
+		},
+	}
+
+	err := buildPage(*destination, &repo)
 	if err != nil {
 		log.Fatal(err)
 	}
