@@ -18,7 +18,8 @@ type GitRepo struct {
 
 	// Optional fields
 	Commits []Commit
-	Tree []os.FileInfo
+	Tree    []os.FileInfo
+	Readme  string
 }
 
 type Commit struct {
@@ -80,6 +81,12 @@ func main() {
 		{time.Now(), "Second commit", "Sören Tempel"},
 	}
 
+	readme := `
+# Example Readme
+
+This is an an example Readme file.
+`
+
 	repo := GitRepo{
 		Title: "Some Repository",
 		URL:   "git://git.8pit.net",
@@ -90,7 +97,8 @@ func main() {
 			"feature/barfoo",
 		},
 		Commits: commits,
-		Tree: files,
+		Tree:    files,
+		Readme:  readme,
 	}
 
 	err := buildPage(*destination, &repo)

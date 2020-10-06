@@ -32,7 +32,9 @@
 				{{ template "tree.tmpl" .Tree }}
 			{{ end }}
 
-			{{ template "readme.tmpl" }}
+			{{ if .Readme }}
+				{{ template "readme.tmpl" .Readme }}
+			{{ end }}
 		</main>
 	</body>
 </html>
