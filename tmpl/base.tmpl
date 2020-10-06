@@ -28,7 +28,9 @@
 				{{ template "commits.tmpl" .Commits }}
 			{{ end }}
 
-			{{ template "tree.tmpl" }}
+			{{ if .Tree }}
+				{{ template "tree.tmpl" .Tree }}
+			{{ end }}
 
 			{{ template "readme.tmpl" }}
 		</main>

@@ -18,6 +18,7 @@ type GitRepo struct {
 
 	// Optional fields
 	Commits []Commit
+	Tree []os.FileInfo
 }
 
 type Commit struct {
@@ -64,6 +65,16 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 	flag.Parse()
 
+	var files []os.FileInfo
+	for _, fp := range []string{"tmpl", "main.go", "README.md"} {
+		stat, err := os.Stat(fp)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		files = append(files, stat)
+	}
+
 	commits := []Commit{
 		{time.Now(), "First commit", "Sören Tempel"},
 		{time.Now(), "Second commit", "Sören Tempel"},
@@ -79,6 +90,7 @@ func main() {
 			"feature/barfoo",
 		},
 		Commits: commits,
+		Tree: files,
 	}
 
 	err := buildPage(*destination, &repo)
