@@ -79,7 +79,7 @@ header nav {
 	display: inline-block;
 	list-style-type: none;
 }
-header nav a#current {
+header nav a.current {
 	color: IndianRed;
 	font-weight: bold;
 }

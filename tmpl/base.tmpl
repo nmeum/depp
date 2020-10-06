@@ -15,9 +15,10 @@
 			<section class="branches">
 				<h2>Branches:</h2>
 				<nav>
-					{{ range .Branches }}
+				{{ $curBranch := .CurBranch }}
+				{{ range .Branches }}
 						<!-- TODO: set current -->
-						<a href="">{{ . }}</a>
+						<a {{ if (eq $curBranch .) }}class="current"{{ end }} href="">{{ . }}</a>
 					{{ end }}
 				</nav>
 			</section>

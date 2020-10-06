@@ -12,9 +12,10 @@ import (
 )
 
 type GitRepo struct {
-	Title    string
-	URL      string
-	Branches []string
+	Title     string
+	URL       string
+	CurBranch string
+	Branches  []string
 
 	// Optional fields
 	Commits []Commit
@@ -96,9 +97,10 @@ This is an an example Readme file.
 			"feature/foobar",
 			"feature/barfoo",
 		},
-		Commits: commits,
-		Tree:    files,
-		Readme:  readme,
+		CurBranch: "next",
+		Commits:   commits,
+		Tree:      files,
+		Readme:    readme,
 	}
 
 	err := buildPage(*destination, &repo)
