@@ -8,12 +8,22 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type GitRepo struct {
 	Title    string
 	URL      string
 	Branches []string
+
+	// Optional fields
+	Commits []Commit
+}
+
+type Commit struct {
+	Date   time.Time
+	Desc   string
+	Author string
 }
 
 var templateFiles = []string{
@@ -54,6 +64,11 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 	flag.Parse()
 
+	commits := []Commit{
+		{time.Now(), "First commit", "Sören Tempel"},
+		{time.Now(), "Second commit", "Sören Tempel"},
+	}
+
 	repo := GitRepo{
 		Title: "Some Repository",
 		URL:   "git://git.8pit.net",
@@ -63,6 +78,7 @@ func main() {
 			"feature/foobar",
 			"feature/barfoo",
 		},
+		Commits: commits,
 	}
 
 	err := buildPage(*destination, &repo)

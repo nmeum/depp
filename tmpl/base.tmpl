@@ -24,7 +24,9 @@
 		</header>
 
 		<main>
-			{{ template "commits.tmpl" }}
+			{{ if .Commits }}
+				{{ template "commits.tmpl" .Commits }}
+			{{ end }}
 
 			{{ template "tree.tmpl" }}
 
