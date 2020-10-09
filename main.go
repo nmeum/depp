@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "github.com/libgit2/git2go/v28"
+	git "github.com/libgit2/git2go"
 
 	"flag"
 	"html/template"
@@ -42,6 +42,8 @@ var (
 	destination = flag.String("-d", "./www", "output directory for HTML files")
 )
 
+var repo *git.Repository
+
 func buildPage(outDir string, repo *GitRepo) error {
 	tmpl, err := template.ParseFiles(templateFiles...)
 	if err != nil {
@@ -64,8 +66,19 @@ func buildPage(outDir string, repo *GitRepo) error {
 }
 
 func main() {
+	var err error
 	log.SetFlags(log.Lshortfile)
 	flag.Parse()
+
+	if flag.NArg() != 1 {
+		os.Exit(1)
+	}
+
+	path := flag.Arg(0)
+	repo, err = git.OpenRepository(path)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var files []os.FileInfo
 	for _, fp := range []string{"tmpl", "main.go", "README.md"} {
