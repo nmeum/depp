@@ -4,9 +4,9 @@
 		<tbody>
 			{{ range . }}
 				<tr>
-					<td class="date">{{ .Date.Format "2006-02-01" }}</td>
-					<td class="description">{{ .Desc }}</td>
-					<td class="author">{{ .Author }}</td>
+					<td class="date">{{ .Author.When.Format "2006-02-01"}}</td>
+					<td class="description">{{ .Summary }}</td>
+					<td class="author">{{ .Author.Name }}</td>
 				</tr>
 			{{ end }}
 		</tbody>

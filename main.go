@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 type GitRepo struct {
@@ -18,15 +17,9 @@ type GitRepo struct {
 	Branches  []string
 
 	// Optional fields
-	Commits []Commit
+	Commits []*git.Commit
 	Tree    []os.FileInfo
 	Readme  string
-}
-
-type Commit struct {
-	Date   time.Time
-	Desc   string
-	Author string
 }
 
 var templateFiles = []string{
@@ -90,33 +83,31 @@ func main() {
 		files = append(files, stat)
 	}
 
-	commits := []Commit{
-		{time.Now(), "First commit", "Sören Tempel"},
-		{time.Now(), "Second commit", "Sören Tempel"},
-	}
-
 	readme := `
 # Example Readme
 
 This is an an example Readme file.
 `
+	head, err := repo.Head()
+	if err != nil {
+		log.Fatal(err)
+	}
+	commit, err := repo.LookupCommit(head.Target())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	repo := GitRepo{
-		Title: "Some Repository",
-		URL:   "git://git.8pit.net",
-		Branches: []string{
-			"master",
-			"next",
-			"feature/foobar",
-			"feature/barfoo",
-		},
-		CurBranch: "next",
-		Commits:   commits,
+		Title:     "Some Repository",
+		URL:       "git://git.8pit.net",
+		Branches:  []string{"foo", "bar", "baz"},
+		CurBranch: "bar",
+		Commits:   []*git.Commit{commit},
 		Tree:      files,
 		Readme:    readme,
 	}
 
-	err := buildPage(*destination, &repo)
+	err = buildPage(*destination, &repo)
 	if err != nil {
 		log.Fatal(err)
 	}
