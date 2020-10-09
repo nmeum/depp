@@ -34,11 +34,11 @@ table.commits td.author {
 	color: gray;
 }
 
-#tree ul {
+ul.tree {
 	list-style-type: none;
 	padding: 0px 5px 0px 5px;
 }
-#tree li {
+li.tree {
 	padding: 1px 0px 1px 0px;
 }
 
@@ -52,6 +52,20 @@ a.directory {
 a:hover {
 	color: #800;
 	text-decoration: underline;
+}
+
+nav, nav ul, nav li, nav h2 {
+	display: inline-block;
+}
+nav ul {
+	margin: 0px;
+	padding: 0px;
+	list-style: none
+}
+nav ul li:not(:last-child):after  {
+	color: #ccc;
+	padding: 8px;
+	content: "/";
 }
 
 header, main section {

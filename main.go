@@ -15,6 +15,7 @@ var templateFiles = []string{
 	"./tmpl/tree.tmpl",
 	"./tmpl/readme.tmpl",
 	"./tmpl/blob.tmpl",
+	"./tmpl/breadcrumb.tmpl",
 }
 
 var (
@@ -25,11 +26,9 @@ var (
 var tmpl *template.Template
 
 func walkPages(page *RepoPage) error {
-	var name string
-	if page.CurrentFile == "" {
+	name := page.CurrentFile.Path
+	if page.CurrentFile.Path == "" {
 		name = "index"
-	} else {
-		name = page.CurrentFile
 	}
 	name += ".html"
 
@@ -49,7 +48,7 @@ func walkPages(page *RepoPage) error {
 
 	// If this is not the index, remove some information
 	// TODO: Make sure this information is not calculated in the first place
-	if page.CurrentFile != "" {
+	if page.CurrentFile.Path != "" {
 		page.Commits = nil
 		page.Readme = ""
 	}

@@ -5,6 +5,7 @@ import (
 
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 type RepoFile struct {
@@ -14,6 +15,10 @@ type RepoFile struct {
 
 func (f *RepoFile) Name() string {
 	return path.Base(f.Path)
+}
+
+func (f *RepoFile) PathElements() []string {
+	return strings.SplitN(f.Path, "/", -1)
 }
 
 // Repo represents information required per repository.
@@ -33,9 +38,7 @@ type RepoPage struct {
 	tree   *git.Tree
 	commit *git.Commit
 
-	CurrentFile string
-	IsDir       bool
-
+	CurrentFile RepoFile
 	Commits []*git.Commit
 }
 
@@ -117,15 +120,15 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		return nil, err
 	}
 
-	page.CurrentFile = fp
-	if page.CurrentFile != "" {
+	page.CurrentFile = RepoFile{Path: fp}
+	if page.CurrentFile.Path != "" {
 		entry, err := page.tree.EntryByPath(fp)
 		if err != nil {
 			return nil, err
 		}
-		page.IsDir = entry.Type == git.ObjectTree
+		page.CurrentFile.IsDir = entry.Type == git.ObjectTree
 
-		if page.IsDir {
+		if page.CurrentFile.IsDir {
 			page.tree, err = r.git.LookupTree(entry.Id)
 			if err != nil {
 				panic(err)
@@ -133,7 +136,7 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 			}
 		}
 	} else {
-		page.IsDir = true
+		page.CurrentFile.IsDir = true
 	}
 
 	// TODO: Make N configurable
@@ -154,7 +157,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		}
 
 		file := RepoFile{
-			Path:  path.Join(r.CurrentFile, e.Name),
+			Path:  path.Join(r.CurrentFile.Path, e.Name),
 			IsDir: e.Type == git.ObjectTree,
 		}
 

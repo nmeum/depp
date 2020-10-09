@@ -11,10 +11,10 @@
 {{ end }}
 
 <section id="tree">
-	<h2>tree</h2>
+	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
-	<ul>
-		{{ range . }}
+	<ul class="tree">
+		{{ range .Files }}
 			<li>
 				<a class="{{ template "type" . }}" href="{{ .Path }}.html">
 					{{ .Name }}{{ template "suffix" . }}

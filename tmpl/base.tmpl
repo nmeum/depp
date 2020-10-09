@@ -18,10 +18,10 @@
 				{{ template "commits.tmpl" .Commits }}
 			{{ end }}
 
-			{{ if .IsDir }}
-				{{ template "tree.tmpl" .Files }}
+			{{ if .CurrentFile.IsDir }}
+				{{ template "tree.tmpl" . }}
 			{{ else }}
-				{{ template "blob.tmpl" .GetBlob .CurrentFile }}
+				{{ template "blob.tmpl" . }}
 			{{ end }}
 
 			{{ if .Readme }}

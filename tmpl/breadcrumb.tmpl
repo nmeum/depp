@@ -1,0 +1,14 @@
+<nav>
+	<h2>
+		{{- if (eq .Path "") -}}
+			tree
+		{{- else -}}
+			<ul>
+				<li><a href="index.html">[HEAD]</a></li>
+				{{- range .PathElements -}}
+					<li><a href="">{{ . }}</a></li>
+				{{- end -}}
+			</ul>
+		{{- end -}}
+	</h2>
+</nav>
