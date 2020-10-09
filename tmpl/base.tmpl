@@ -29,9 +29,9 @@
 				{{ template "commits.tmpl" .Commits }}
 			{{ end }}
 
-			{{ if .Tree }}
-				{{ template "tree.tmpl" .Tree }}
-			{{ end }}
+			{{/* TODO: Somehow make this optional again */}}
+			{{/* TODO: Make path/prefix configurable */}}
+			{{ template "tree.tmpl" .FilesByRoot "" }}
 
 			{{ if .Readme }}
 				{{ template "readme.tmpl" .Readme }}
