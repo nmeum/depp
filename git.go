@@ -8,9 +8,12 @@ import (
 )
 
 type RepoFile struct {
-	Name  string
 	Path  string /// Slash separated path
 	IsDir bool
+}
+
+func (f *RepoFile) Name() string {
+	return path.Base(f.Path)
 }
 
 // Repo represents information required per repository.
@@ -176,7 +179,6 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		}
 
 		file := RepoFile{
-			Name:  e.Name,
 			Path:  path.Join(r.CurrentFile, e.Name),
 			IsDir: e.Type == git.ObjectTree,
 		}
