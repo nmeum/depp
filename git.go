@@ -58,6 +58,43 @@ func NewRepo(fp string) (*Repo, error) {
 	return r, nil
 }
 
+func (r *Repo) Walk(fn func(*RepoPage) error) error {
+	head, err := r.git.Head()
+	if err != nil {
+		return err
+	}
+
+	indexPage, err := r.GetPage(head, "")
+	if err != nil {
+		return err
+	}
+
+	var ret error
+	indexPage.tree.Walk(func(root string, e *git.TreeEntry) int {
+		if root == "" {
+			ret = fn(indexPage)
+			if ret != nil {
+				return -1
+			}
+		}
+
+		fp := filepath.Join(root, e.Name)
+		page, ret := r.GetPage(head, fp)
+		if ret != nil {
+			return -1
+		}
+
+		ret = fn(page)
+		if ret != nil {
+			return -1
+		}
+
+		return 0
+	})
+
+	return ret
+}
+
 func (r *Repo) Branches() ([]string, error) {
 	iterator, err := r.git.NewBranchIterator(git.BranchLocal)
 	if err != nil {
@@ -130,6 +167,7 @@ func (r *RepoPage) FilesByRoot(prefix string) ([]os.FileInfo, error) {
 		stat, err := os.Stat(fp) // TODO: Doesn't work for bare repos
 		if err != nil {
 			ret = err
+			return -1
 		}
 
 		entries = append(entries, stat)

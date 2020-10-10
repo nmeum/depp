@@ -22,18 +22,30 @@ var (
 	destination = flag.String("-d", "./www", "output directory for HTML files")
 )
 
-func buildPage(outDir string, page *RepoPage) error {
-	tmpl, err := template.ParseFiles(templateFiles...)
-	if err != nil {
-		return err
-	}
+var tmpl *template.Template
 
-	indexPath := filepath.Join(outDir, "index.html")
-	file, err := os.Create(indexPath)
+func walkPages(page *RepoPage) error {
+	var fn string
+	if page.CurrentFile == "" {
+		fn = "index"
+	} else {
+		fn = filepath.Base(page.CurrentFile)
+	}
+	fn += ".html"
+
+	fp := filepath.Join(*destination, fn)
+	file, err := os.Create(fp)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+
+	// If this is not the index, remove some information
+	// TODO: Make sure this information is not calculated in the first place
+	if page.CurrentFile != "" {
+		page.Commits = nil
+		page.Readme = ""
+	}
 
 	err = tmpl.Execute(file, page)
 	if err != nil {
@@ -57,17 +69,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	head, err := repo.git.Head()
-	if err != nil {
-		log.Fatal(err)
-	}
-	page, err := repo.GetPage(head, "")
+	tmpl, err = template.ParseFiles(templateFiles...)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = buildPage(*destination, page)
+	err = repo.Walk(walkPages)
 	if err != nil {
 		log.Fatal(err)
 	}
