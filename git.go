@@ -10,7 +10,7 @@ import (
 
 // Repo represents information required per repository.
 type Repo struct {
-	git *git.Repository
+	git  *git.Repository
 	path string
 
 	Title     string
@@ -22,9 +22,13 @@ type Repo struct {
 // RepoPage represents information required per reference.
 type RepoPage struct {
 	Repo
-	CurrentRoot string
 
-	commit  *git.Commit
+	tree   *git.Tree
+	commit *git.Commit
+
+	CurrentFile string
+	IsDir       bool
+
 	Commits []*git.Commit
 }
 
@@ -78,7 +82,7 @@ func (r *Repo) Branches() ([]string, error) {
 	return branches, nil
 }
 
-func (r *Repo) GetPage(ref *git.Reference) (*RepoPage, error) {
+func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 	var err error
 	page := &RepoPage{Repo: *r}
 
@@ -86,6 +90,23 @@ func (r *Repo) GetPage(ref *git.Reference) (*RepoPage, error) {
 	page.commit, err = r.git.LookupCommit(oid)
 	if err != nil {
 		return nil, err
+	}
+
+	page.tree, err = page.commit.Tree()
+	if err != nil {
+		return nil, err
+	}
+
+	page.CurrentFile = fp
+	if page.CurrentFile != "" {
+		entry, err := page.tree.EntryByPath(fp)
+		if err != nil {
+			return nil, err
+		}
+
+		page.IsDir = entry.Type == git.ObjectTree
+	} else {
+		page.IsDir = true
 	}
 
 	// TODO: Make N configurable
@@ -98,21 +119,15 @@ func (r *Repo) GetPage(ref *git.Reference) (*RepoPage, error) {
 }
 
 func (r *RepoPage) FilesByRoot(prefix string) ([]os.FileInfo, error) {
-	tree, err := r.commit.Tree()
-	if err != nil {
-		return nil, err
-	}
-
 	var ret error
 	var entries []os.FileInfo
-
-	tree.Walk(func(root string, e *git.TreeEntry) int {
+	r.tree.Walk(func(root string, e *git.TreeEntry) int {
 		if root != prefix {
 			return 1 /* Skip passed entry */
 		}
 
 		fp := filepath.Join(r.path, root, e.Name)
-		stat, err := os.Stat(fp)
+		stat, err := os.Stat(fp) // TODO: Doesn't work for bare repos
 		if err != nil {
 			ret = err
 		}

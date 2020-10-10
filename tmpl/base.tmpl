@@ -29,8 +29,9 @@
 				{{ template "commits.tmpl" .Commits }}
 			{{ end }}
 
-			{{/* TODO: Somehow make this optional again */}}
-			{{ template "tree.tmpl" .FilesByRoot .CurrentRoot }}
+			{{ if .IsDir }}
+				{{ template "tree.tmpl" .FilesByRoot .CurrentFile }}
+			{{ end }}
 
 			{{ if .Readme }}
 				{{ template "readme.tmpl" .Readme }}

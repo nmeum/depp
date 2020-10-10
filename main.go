@@ -61,7 +61,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	page, err := repo.GetPage(head)
+	page, err := repo.GetPage(head, "")
 	if err != nil {
 		log.Fatal(err)
 	}
