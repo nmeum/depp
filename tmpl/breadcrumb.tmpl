@@ -7,10 +7,10 @@
 				{{- $elems := .PathElements -}}
 				{{- $amount := (len .PathElements) -}}
 
-				<li><a class="head" href="{{ (getRelPath $amount) }}/index.html">HEAD</a></li>
+				<li><a class="head" href="{{ (getRelPath (decrement $amount)) }}index.html">HEAD</a></li>
 				{{- range $i, $e := .PathElements -}}
 					{{- $amount = (decrement $amount) -}}
-					<li><a href="{{ (getRelPath $amount) }}/{{ $e }}.html">{{ $e }}</a></li>
+					<li><a href="{{ (getRelPath $amount) }}{{ $e }}.html">{{ $e }}</a></li>
 				{{- end -}}
 			</ul>
 		{{- end -}}

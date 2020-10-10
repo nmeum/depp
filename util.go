@@ -61,7 +61,7 @@ func getRelPath(n int) string {
 	}
 
 	if (ret == "") {
-		return "."
+		return "./"
 	} else {
 		return ret
 	}
