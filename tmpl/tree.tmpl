@@ -16,7 +16,7 @@
 	<ul>
 		{{ range . }}
 			<li>
-				<a class="{{ template "type" . }}" href="">
+				<a class="{{ template "type" . }}" href="{{ .Name }}.html">
 					{{ .Name }}{{ template "suffix" . }}
 				</a>
 			</li>
