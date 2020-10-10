@@ -50,7 +50,17 @@ func NewRepo(fp string) (*Repo, error) {
 
 	r.Title = filepath.Base(fp)
 	r.URL = path.Join("git://git.8pit.net")                 // TODO
-	r.Readme = "# Readme\n\nSomething something something." // TODO
+
+	head, err := r.git.Head()
+	if err != nil {
+		return nil, err
+	}
+	r.Readme, err = getReadme(r.git, head)
+	if err == noReadme || len(r.Readme) == 0 {
+		r.Readme = ""
+	} else if err != nil {
+		return nil, err
+	}
 
 	return r, nil
 }
