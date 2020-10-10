@@ -25,17 +25,24 @@ var (
 var tmpl *template.Template
 
 func walkPages(page *RepoPage) error {
-	var fn string
+	var name string
 	if page.CurrentFile == "" {
-		fn = "index"
+		name = "index"
 	} else {
-		fn = filepath.Base(page.CurrentFile)
+		name = page.CurrentFile
 	}
-	fn += ".html"
+	name += ".html"
 
-	fp := filepath.Join(*destination, fn)
+	fp := filepath.Join(*destination, name)
+	err := os.MkdirAll(filepath.Dir(fp), 0755)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
 	file, err := os.Create(fp)
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 	defer file.Close()
@@ -49,6 +56,7 @@ func walkPages(page *RepoPage) error {
 
 	err = tmpl.Execute(file, page)
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 
