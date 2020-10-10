@@ -62,6 +62,17 @@ nav ul {
 	padding: 0px;
 	list-style: none
 }
+nav ul li a.head {
+	color: grey;
+}
+nav ul li a.head:before {
+	padding-right: 5px;
+	content: "[";
+}
+nav ul li a.head:after {
+	padding-left: 5px;
+	content: "]"; 
+}
 nav ul li:not(:last-child):after  {
 	color: #ccc;
 	padding: 8px;
