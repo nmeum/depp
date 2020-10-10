@@ -53,3 +53,20 @@ func getCommits(commit *git.Commit, n uint) ([]*git.Commit, error) {
 
 	return commits, nil
 }
+
+func getRelPath(n int) string {
+	var ret string
+	for i := 0; i < n; i++ {
+		ret += "../"
+	}
+
+	if (ret == "") {
+		return "."
+	} else {
+		return ret
+	}
+}
+
+func decrement(n int) int {
+	return n - 1
+}

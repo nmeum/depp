@@ -4,9 +4,13 @@
 			tree
 		{{- else -}}
 			<ul>
-				<li><a href="index.html">[HEAD]</a></li>
-				{{- range .PathElements -}}
-					<li><a href="">{{ . }}</a></li>
+				{{- $elems := .PathElements -}}
+				{{- $amount := (len .PathElements) -}}
+
+				<li><a href="{{ (getRelPath $amount) }}/index.html">[HEAD]</a></li>
+				{{- range $i, $e := .PathElements -}}
+					{{- $amount = (decrement $amount) -}}
+					<li><a href="{{ (getRelPath $amount) }}/{{ $e }}.html">{{ $e }}</a></li>
 				{{- end -}}
 			</ul>
 		{{- end -}}

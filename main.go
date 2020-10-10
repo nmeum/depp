@@ -62,6 +62,30 @@ func walkPages(page *RepoPage) error {
 	return nil
 }
 
+func buildTmpl() (*template.Template, error) {
+	var err error
+
+	name := filepath.Base(templateFiles[0])
+	tmpl := template.New(name)
+
+	funcMap := make(template.FuncMap)
+	funcMap["getRelPath"] = getRelPath
+	funcMap["decrement"] = decrement
+	tmpl = tmpl.Funcs(funcMap)
+
+	tmpl, err = tmpl.ParseFiles(templateFiles[0])
+	if err != nil {
+		return nil, err
+	}
+
+	tmpl, err = tmpl.ParseFiles(templateFiles[1:]...)
+	if err != nil {
+		return nil, err
+	}
+
+	return tmpl, nil
+}
+
 func main() {
 	var err error
 	log.SetFlags(log.Lshortfile)
@@ -76,11 +100,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tmpl, err = template.ParseFiles(templateFiles...)
+
+	tmpl, err = buildTmpl()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = repo.Walk(walkPages)
 	if err != nil {
 		log.Fatal(err)
