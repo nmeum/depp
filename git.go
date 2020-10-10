@@ -22,6 +22,8 @@ type Repo struct {
 // RepoPage represents information required per reference.
 type RepoPage struct {
 	Repo
+	CurrentRoot string
+
 	commit  *git.Commit
 	Commits []*git.Commit
 }

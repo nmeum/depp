@@ -30,8 +30,7 @@
 			{{ end }}
 
 			{{/* TODO: Somehow make this optional again */}}
-			{{/* TODO: Make path/prefix configurable */}}
-			{{ template "tree.tmpl" .FilesByRoot "" }}
+			{{ template "tree.tmpl" .FilesByRoot .CurrentRoot }}
 
 			{{ if .Readme }}
 				{{ template "readme.tmpl" .Readme }}
