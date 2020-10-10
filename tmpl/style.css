@@ -67,27 +67,6 @@ section, header {
 	padding: 10px 10px 10px 10px;
 }
 
-header section {
-	padding: 0px;
-	margin: 5px 0px 5px 0px;
-}
-header section h2 {
-	font-size: 12px;
-	display: inline;
-}
-header nav {
-	display: inline-block;
-	list-style-type: none;
-}
-header nav a.current {
-	color: IndianRed;
-	font-weight: bold;
-}
-header nav a:not(:last-child) {
-	padding-right: 7.5px;
-	border-right: 1px solid #ccc;
-}
-
 header {
 	border-bottom: 3px solid #ccc;
 }

@@ -23,7 +23,6 @@ type Repo struct {
 
 	Title     string
 	URL       string
-	CurBranch string
 	Readme    string
 }
 
@@ -52,16 +51,6 @@ func NewRepo(fp string) (*Repo, error) {
 	r.Title = filepath.Base(fp)
 	r.URL = path.Join("git://git.8pit.net")                 // TODO
 	r.Readme = "# Readme\n\nSomething something something." // TODO
-
-	head, err := r.git.Head()
-	if err != nil {
-		return nil, err
-	}
-
-	r.CurBranch, err = head.Branch().Name()
-	if err != nil {
-		return nil, err
-	}
 
 	return r, nil
 }
@@ -101,30 +90,6 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	})
 
 	return ret
-}
-
-func (r *Repo) Branches() ([]string, error) {
-	iterator, err := r.git.NewBranchIterator(git.BranchLocal)
-	if err != nil {
-		return []string{}, nil
-	}
-
-	var ret error
-	var branches []string
-	iterator.ForEach(func(b *git.Branch, t git.BranchType) error {
-		name, err := b.Name()
-		if err != nil {
-			ret = err
-		}
-
-		branches = append(branches, name)
-		return nil
-	})
-	if ret != nil {
-		return []string{}, ret
-	}
-
-	return branches, nil
 }
 
 func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {

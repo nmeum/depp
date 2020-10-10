@@ -11,17 +11,6 @@
 		<header>
 			<h1>{{ .Title }}</h1>
 			<pre>git clone {{ .URL }}/{{ .Title }}.git</pre>
-
-			<section class="branches">
-				<h2>Branches:</h2>
-				<nav>
-				{{ $curBranch := .CurBranch }}
-				{{ range .Branches }}
-						<!-- TODO: set current -->
-						<a {{ if (eq $curBranch .) }}class="current"{{ end }} href="">{{ . }}</a>
-					{{ end }}
-				</nav>
-			</section>
 		</header>
 
 		<main>
