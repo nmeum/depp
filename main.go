@@ -14,6 +14,7 @@ var templateFiles = []string{
 	"./tmpl/commits.tmpl",
 	"./tmpl/tree.tmpl",
 	"./tmpl/readme.tmpl",
+	"./tmpl/blob.tmpl",
 }
 
 var (

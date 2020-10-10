@@ -31,6 +31,8 @@
 
 			{{ if .IsDir }}
 				{{ template "tree.tmpl" .FilesByRoot .CurrentFile }}
+			{{ else }}
+				{{ template "blob.tmpl" .GetBlob .CurrentFile }}
 			{{ end }}
 
 			{{ if .Readme }}

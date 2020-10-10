@@ -141,3 +141,18 @@ func (r *RepoPage) FilesByRoot(prefix string) ([]os.FileInfo, error) {
 
 	return entries, nil
 }
+
+func (r *RepoPage) GetBlob(fp string) (string, error) {
+	entry, err := r.tree.EntryByPath(fp)
+	if err != nil {
+		return "", err
+	}
+
+	oid := entry.Id
+	blob, err := r.git.LookupBlob(oid)
+	if err != nil {
+		return "", err
+	}
+
+	return string(blob.Contents()), nil
+}
