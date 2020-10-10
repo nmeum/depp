@@ -3,10 +3,15 @@ package main
 import (
 	git "github.com/libgit2/git2go"
 
-	"os"
 	"path"
 	"path/filepath"
 )
+
+type RepoFile struct {
+	Name string
+	Path string
+	IsDir bool
+}
 
 // Repo represents information required per repository.
 type Repo struct {
@@ -140,8 +145,15 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		page.IsDir = entry.Type == git.ObjectTree
+
+		if page.IsDir {
+			page.tree, err = r.git.LookupTree(entry.Id)
+			if err != nil {
+				panic(err)
+				return nil, err
+			}
+		}
 	} else {
 		page.IsDir = true
 	}
@@ -155,22 +167,21 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 	return page, nil
 }
 
-func (r *RepoPage) FilesByRoot(prefix string) ([]os.FileInfo, error) {
+func (r *RepoPage) Files() ([]RepoFile, error) {
 	var ret error
-	var entries []os.FileInfo
+	var entries []RepoFile
 	r.tree.Walk(func(root string, e *git.TreeEntry) int {
-		if root != prefix {
+		if root != "" {
 			return 1 /* Skip passed entry */
 		}
 
-		fp := filepath.Join(r.path, root, e.Name)
-		stat, err := os.Stat(fp) // TODO: Doesn't work for bare repos
-		if err != nil {
-			ret = err
-			return -1
+		file := RepoFile{
+			Name: e.Name,
+			Path: filepath.Join(r.CurrentFile, e.Name),
+			IsDir: e.Type == git.ObjectTree,
 		}
 
-		entries = append(entries, stat)
+		entries = append(entries, file)
 		return 0
 	})
 	if ret != nil {

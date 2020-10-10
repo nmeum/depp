@@ -1,5 +1,5 @@
 {{ define "type" }}
-	{{- if (.IsDir) -}}
+	{{- if .IsDir -}}
 		directory
 	{{- else -}}
 		file
@@ -7,7 +7,7 @@
 {{ end }}
 
 {{ define "suffix" }}
-	{{- if (.IsDir) -}}/{{- end -}}
+	{{- if .IsDir -}}/{{- end -}}
 {{ end }}
 
 <section id="tree">
@@ -16,7 +16,7 @@
 	<ul>
 		{{ range . }}
 			<li>
-				<a class="{{ template "type" . }}" href="{{ .Name }}.html">
+				<a class="{{ template "type" . }}" href="{{ .Path }}.html">
 					{{ .Name }}{{ template "suffix" . }}
 				</a>
 			</li>

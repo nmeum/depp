@@ -30,7 +30,7 @@
 			{{ end }}
 
 			{{ if .IsDir }}
-				{{ template "tree.tmpl" .FilesByRoot .CurrentFile }}
+				{{ template "tree.tmpl" .Files }}
 			{{ else }}
 				{{ template "blob.tmpl" .GetBlob .CurrentFile }}
 			{{ end }}
