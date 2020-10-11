@@ -1,17 +1,21 @@
+{{ $black := "black" }}
+{{ $blue := "#038" }}
+{{ $red := "#800" }}
+{{ $grey := "grey" }}
+{{ $lightGrey := "#ccc" }}
+
 {{/**
-   * Global rules
+   * General rules
    **/}}
 
 body {
-	color: black;
+	color: {{ $black }};
 	font-family: monospace;
 }
 
 h1, h2, h3, h4, h5, h6, h7, h8, h9 {
 	padding: 0px;
-	margin: 0px;
-
-	margin-bottom: 5px;
+	margin: 0px 0px 5px 0px;
 }
 p {
 	padding: 0px;
@@ -22,7 +26,7 @@ header, main section {
 	padding: 10px;
 }
 header pre {
-	color: #777;
+	color: {{ $grey }};
 
 	padding: 0px;
 	margin: 0px;
@@ -30,12 +34,16 @@ header pre {
 section, header {
 	padding: 10px 10px 10px 10px;
 }
+section pre {
+	padding: 0px;
+	margin: 0px;
+}
 
 header {
-	border-bottom: 3px solid #ccc;
+	border-bottom: 3px solid {{ $lightGrey }};
 }
 main section:not(:last-child) {
-	border-bottom: 3px solid #ccc;
+	border-bottom: 3px solid {{ $lightGrey }};
 }
 
 {{/**
@@ -45,21 +53,18 @@ main section:not(:last-child) {
 table {
 	text-align: left;
 }
-table tr:hover {
-	background-color: #e3e3e3;
-}
 table td {
 	padding: 0.15em 0.5em;
 }
 table.commits td.date {
 	font-style: italic;
-	color: gray;
+	color: {{ $grey }};
 }
 table.commits td.description {
 	min-width: 32em;
 }
 table.commits td.author {
-	color: gray;
+	color: {{ $grey }};
 }
 
 {{/**
@@ -68,21 +73,19 @@ table.commits td.author {
 
 ul.tree {
 	list-style-type: none;
-	padding: 0px 5px 0px 5px;
-}
-li.tree {
-	padding: 1px 0px 1px 0px;
+	padding: 0px;
+	margin: 0px 0px 5px 0px;
 }
 
 a {
-	color: black;
+	color: {{ $black }};
 	text-decoration: none;
 }
 a.directory {
-	color: #038;
+	color: {{ $blue }};
 }
 a:hover {
-	color: #800;
+	color: {{ $red }};
 	text-decoration: underline;
 }
 
@@ -98,19 +101,16 @@ nav ul {
 	padding: 0px;
 	list-style: none
 }
-nav ul li a.head {
-	color: grey;
-}
 nav ul li a.head:before {
 	padding-right: 5px;
 	content: "[";
 }
 nav ul li a.head:after {
 	padding-left: 5px;
-	content: "]"; 
+	content: "]";
 }
 nav ul li:not(:last-child):after  {
-	color: #ccc;
+	color: {{ $lightGrey }};
 	padding: 8px;
 	content: "/";
 }
