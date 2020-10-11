@@ -120,6 +120,7 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		return nil, err
 	}
 
+	// TODO: Find out how to retrieve the TreeEntry for /
 	page.CurrentFile = RepoFile{Path: fp}
 	if page.CurrentFile.Path != "" {
 		entry, err := page.tree.EntryByPath(fp)
