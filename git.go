@@ -26,9 +26,9 @@ type Repo struct {
 	git  *git.Repository
 	path string
 
-	Title     string
-	URL       string
-	Readme    string
+	Title  string
+	URL    string
+	Readme string
 }
 
 // RepoPage represents information required per reference.
@@ -39,7 +39,7 @@ type RepoPage struct {
 	commit *git.Commit
 
 	CurrentFile RepoFile
-	Commits []*git.Commit
+	Commits     []*git.Commit
 }
 
 func NewRepo(fp string) (*Repo, error) {
@@ -52,7 +52,7 @@ func NewRepo(fp string) (*Repo, error) {
 	}
 
 	r.Title = filepath.Base(fp)
-	r.URL = path.Join("git://git.8pit.net")                 // TODO
+	r.URL = path.Join("git://git.8pit.net") // TODO
 
 	head, err := r.git.Head()
 	if err != nil {
@@ -82,20 +82,23 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	var ret error
 	indexPage.tree.Walk(func(root string, e *git.TreeEntry) int {
 		if root == "" {
-			ret = fn(indexPage)
-			if ret != nil {
+			err = fn(indexPage)
+			if err != nil {
+				ret = err
 				return -1
 			}
 		}
 
 		fp := filepath.Join(root, e.Name)
-		page, ret := r.GetPage(head, fp)
-		if ret != nil {
+		page, err := r.GetPage(head, fp)
+		if err != nil {
+			ret = err
 			return -1
 		}
 
 		ret = fn(page)
-		if ret != nil {
+		if err != nil {
+			ret = err
 			return -1
 		}
 

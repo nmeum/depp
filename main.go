@@ -29,33 +29,24 @@ func walkPages(page *RepoPage) error {
 	name := page.CurrentFile.Path
 	if page.CurrentFile.Path == "" {
 		name = "index"
-	}
-	name += ".html"
-
-	fp := filepath.Join(*destination, name)
-	err := os.MkdirAll(filepath.Dir(fp), 0755)
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	file, err := os.Create(fp)
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	defer file.Close()
-
-	// If this is not the index, remove some information
-	// TODO: Make sure this information is not calculated in the first place
-	if page.CurrentFile.Path != "" {
+	} else { // Clear info only used once on the index page
 		page.Commits = nil
 		page.Readme = ""
 	}
 
+	fp := filepath.Join(*destination, name+".html")
+	err := os.MkdirAll(filepath.Dir(fp), 0755)
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(fp)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
 	err = tmpl.Execute(file, page)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
