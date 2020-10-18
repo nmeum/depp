@@ -124,7 +124,7 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 	}
 
 	// TODO: Find out how to retrieve the TreeEntry for /
-	page.CurrentFile = RepoFile{Path: fp}
+	page.CurrentFile = RepoFile{Path: filepath.ToSlash(fp)}
 	if page.CurrentFile.Path != "" {
 		entry, err := page.tree.EntryByPath(fp)
 		if err != nil {
@@ -160,8 +160,11 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 			return 1 /* Skip passed entry */
 		}
 
+		basepath := filepath.Base(r.CurrentFile.Path)
+		relpath := filepath.Join(basepath, e.Name)
+
 		file := RepoFile{
-			Path:  path.Join(r.CurrentFile.Path, e.Name),
+			Path:  filepath.ToSlash(relpath),
 			IsDir: e.Type == git.ObjectTree,
 		}
 
