@@ -24,6 +24,11 @@ the repository and use `git(1)` as usual.
 
 Proof of concept, buggy and incomplete.
 
+## Caveats
+
+Existing HTML files are not tracked, thus generated HTML for files
+removed from the repository `HEAD` are not automatically removed.
+
 ## License
 
 This program is free software: you can redistribute it and/or modify it
