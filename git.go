@@ -52,7 +52,7 @@ func NewRepo(fp string) (*Repo, error) {
 	}
 
 	r.Title = filepath.Base(fp)
-	r.URL = path.Join("git://git.8pit.net") // TODO
+	r.URL = "git://git.8pit.net" // TODO
 
 	head, err := r.git.Head()
 	if err != nil {
