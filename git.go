@@ -89,6 +89,11 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 			}
 		}
 
+		// TODO: Explizit handling for git submodules needed
+		if (e.Type == git.ObjectCommit) {
+			return 1 // Skip git submodules
+		}
+
 		fp := filepath.Join(root, e.Name)
 		page, err := r.GetPage(head, fp)
 		if err != nil {
