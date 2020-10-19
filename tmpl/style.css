@@ -37,6 +37,8 @@ section, header {
 section pre {
 	padding: 0px;
 	margin: 0px;
+
+	tab-size: 4;
 }
 
 header {
@@ -105,4 +107,13 @@ nav ul li:not(:last-child):after  {
 	color: {{ $lightGrey }};
 	padding: 8px;
 	content: "/";
+}
+
+{{/**
+   * <pre> with line numbers
+   **/}}
+
+pre.blob a {
+	color: {{ $grey }};
+	padding-right: 15px;
 }

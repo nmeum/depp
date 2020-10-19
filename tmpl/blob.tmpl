@@ -1,5 +1,10 @@
 <section id="blob">
 	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
-	<pre>{{ .GetBlob (.CurrentFile.Path) }}</pre>
+	{{- $blob := .GetBlob (.CurrentFile.Path) -}}
+	<pre class="blob">
+{{- range $i, $line := (getLines $blob) }}
+<a id="L{{ $i }}" href="#L{{ $i }}">{{ $i }}</a>{{ . }}
+{{- end }}
+	</pre>
 </section>

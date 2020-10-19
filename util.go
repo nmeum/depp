@@ -4,6 +4,7 @@ import (
 	git "github.com/libgit2/git2go"
 
 	"errors"
+	"strings"
 )
 
 var noReadme = errors.New("no Readme file found")
@@ -65,6 +66,10 @@ func getRelPath(n int) string {
 	} else {
 		return ret
 	}
+}
+
+func getLines(input string) []string {
+	return strings.Split(input, "\n")
 }
 
 func decrement(n int) int {
