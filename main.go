@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
-	"net/url"
 )
 
 var templateFiles = []string{
@@ -26,6 +27,15 @@ var (
 )
 
 var tmpl *template.Template
+
+func usage() {
+	fmt.Fprintf(flag.CommandLine.Output(),
+		"USAGE: %s [FLAGS] REPOSITORY\n\n"+
+			"The following flags are supported:\n\n", os.Args[0])
+
+	flag.PrintDefaults()
+	os.Exit(2)
+}
 
 func walkPages(page *RepoPage) error {
 	name := page.CurrentFile.Path
@@ -83,6 +93,8 @@ func buildTmpl() (*template.Template, error) {
 func main() {
 	var err error
 	log.SetFlags(log.Lshortfile)
+
+	flag.Usage = usage
 	flag.Parse()
 
 	if flag.NArg() != 1 {
