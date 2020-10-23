@@ -20,9 +20,9 @@ var templateFiles = []string{
 }
 
 var (
-	commits     = flag.Uint("-c", 5, "amount of recent commits to include")
-	gitRawURL   = flag.String("-g", "git://localhost", "base URL of Git clone server")
-	destination = flag.String("-d", "./www", "output directory for HTML files")
+	commits     = flag.Uint("c", 5, "amount of recent commits to include")
+	gitRawURL   = flag.String("g", "git://localhost", "base URL of Git clone server")
+	destination = flag.String("d", "./www", "output directory for HTML files")
 )
 
 var tmpl *template.Template
