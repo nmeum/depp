@@ -24,6 +24,28 @@ the repository and use `git(1)` as usual.
 
 Proof of concept, buggy and incomplete.
 
+## Usage
+
+Currently, this software is not intended to be installed system-wide.
+Instead, use it directly from the repository. For normal operation,
+[libgit2][libgit2 website] and [go][go website] is required. Afterwards
+installing libgit2, clone this repository using:
+
+	$ git clone --recursive https://github.com/nmeum/depp
+
+Change into the newly cloned repository and build the software using:
+
+	$ go build
+
+Afterwards, HTML for a given git repository can be generated using the
+`./depp` binary. For example, assuming you have a web server serving
+files located at `/var/www/htdocs/git.example.org`, you want 10 commits
+on the index page, and `git-daemon(1)` is running on the same domain:
+
+	$ ./depp -c 10  -g git://git.example.org \
+		-d /var/www/htdocs/git.example.org \
+		<path to git repository to generate pages for>
+
 ## Caveats
 
 Existing HTML files are not tracked, thus generated HTML for files
@@ -48,3 +70,5 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [gitweb website]: https://git-scm.com/docs/gitweb
 [git-arr website]: https://blitiri.com.ar/p/git-arr/
 [stagit website]: http://codemadness.nl/git/stagit/log.html
+[libgit2 website]: https://libgit2.org/
+[go webseite]: https://golang.org/
