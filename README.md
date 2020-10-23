@@ -28,7 +28,7 @@ Proof of concept, buggy and incomplete.
 
 Currently, this software is not intended to be installed system-wide.
 Instead, use it directly from the repository. For normal operation,
-[libgit2][libgit2 website] and [go][go website] is required. Afterwards
+[libgit2][libgit2 website] and [go][go website] are required. Afterwards
 installing libgit2, clone this repository using:
 
 	$ git clone --recursive https://github.com/nmeum/depp
