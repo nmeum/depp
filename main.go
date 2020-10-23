@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"net/url"
 )
 
 var templateFiles = []string{
@@ -19,7 +20,8 @@ var templateFiles = []string{
 }
 
 var (
-	commits     = flag.Int("-c", 5, "amount of recent commits to include")
+	commits     = flag.Uint("-c", 5, "amount of recent commits to include")
+	gitRawURL   = flag.String("-g", "git://localhost", "base URL of Git clone server")
 	destination = flag.String("-d", "./www", "output directory for HTML files")
 )
 
@@ -87,8 +89,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	gitURL, err := url.Parse(*gitRawURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	path := flag.Arg(0)
-	repo, err := NewRepo(path)
+	repo, err := NewRepo(path, gitURL, *commits)
 	if err != nil {
 		log.Fatal(err)
 	}

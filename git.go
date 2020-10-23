@@ -3,13 +3,14 @@ package main
 import (
 	git "github.com/libgit2/git2go"
 
+	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
 )
 
 type RepoFile struct {
-	Path  string /// Slash separated path
+	Path  string // Slash separated path
 	IsDir bool
 }
 
@@ -23,8 +24,9 @@ func (f *RepoFile) PathElements() []string {
 
 // Repo represents information required per repository.
 type Repo struct {
-	git  *git.Repository
-	path string
+	git        *git.Repository
+	path       string
+	numCommits uint
 
 	Title  string
 	URL    string
@@ -42,7 +44,7 @@ type RepoPage struct {
 	Commits     []*git.Commit
 }
 
-func NewRepo(fp string) (*Repo, error) {
+func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	var err error
 	r := &Repo{path: fp}
 
@@ -52,7 +54,7 @@ func NewRepo(fp string) (*Repo, error) {
 	}
 
 	r.Title = filepath.Base(fp)
-	r.URL = "git://git.8pit.net" // TODO
+	r.URL = gitServer.String()
 
 	head, err := r.git.Head()
 	if err != nil {
@@ -65,6 +67,7 @@ func NewRepo(fp string) (*Repo, error) {
 		return nil, err
 	}
 
+	r.numCommits = commits
 	return r, nil
 }
 
@@ -90,7 +93,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		}
 
 		// TODO: Explizit handling for git submodules needed
-		if (e.Type == git.ObjectCommit) {
+		if e.Type == git.ObjectCommit {
 			return 1 // Skip git submodules
 		}
 
@@ -148,8 +151,7 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		page.CurrentFile.IsDir = true
 	}
 
-	// TODO: Make N configurable
-	page.Commits, err = getCommits(page.commit, 5)
+	page.Commits, err = getCommits(page.commit, page.numCommits)
 	if err != nil {
 		return nil, err
 	}
