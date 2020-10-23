@@ -69,6 +69,11 @@ func getRelPath(n int) string {
 }
 
 func getLines(input string) []string {
+	// Remove terminating newline (if any)
+	if input[len(input)-1] == '\n' {
+		input = input[0 : len(input)-1]
+	}
+
 	return strings.Split(input, "\n")
 }
 
