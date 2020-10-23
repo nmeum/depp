@@ -42,9 +42,12 @@ Afterwards, HTML for a given git repository can be generated using the
 files located at `/var/www/htdocs/git.example.org`, you want 10 commits
 on the index page, and `git-daemon(1)` is running on the same domain:
 
-	$ ./depp -c 10  -g git://git.example.org \
+	$ ./depp -c 10 -g git://git.example.org \
 		-d /var/www/htdocs/git.example.org \
 		<path to git repository to generate pages for>
+
+To automate this process create a `post-receive` hook in your git
+repository, see `githooks(5)` for more information on this topic.
 
 ## Caveats
 
