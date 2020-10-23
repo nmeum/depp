@@ -98,7 +98,7 @@ func main() {
 	flag.Parse()
 
 	if flag.NArg() != 1 {
-		os.Exit(1)
+		usage()
 	}
 
 	gitURL, err := url.Parse(*gitRawURL)
