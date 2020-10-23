@@ -43,3 +43,8 @@ Public License for more details.
 
 You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>.
+
+[cgit website]: https://git.zx2c4.com/cgit/
+[gitweb website]: https://git-scm.com/docs/gitweb
+[git-arr website]: https://blitiri.com.ar/p/git-arr/
+[stagit website]: http://codemadness.nl/git/stagit/log.html
