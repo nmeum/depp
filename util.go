@@ -48,14 +48,19 @@ func getReadme(repo *git.Repository, ref *git.Reference) (string, error) {
 }
 
 func getCommits(commit *git.Commit, n uint) ([]*git.Commit, error) {
-	// TODO: Handle/test the case where `availableCommits < n`
+	var i uint
 
 	commits := make([]*git.Commit, n)
-	for i := uint(0); i < n; i++ {
+	for i = 0; i < n; i++ {
+		if commit == nil {
+			break
+		}
+
 		commits[i] = commit
 		commit = commit.Parent(0)
 	}
 
+	commits = commits[0:i] // Shrink to appropriate size
 	return commits, nil
 }
 
