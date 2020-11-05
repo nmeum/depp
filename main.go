@@ -75,6 +75,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["getRelPath"] = getRelPath
 	funcMap["decrement"] = decrement
 	funcMap["getLines"] = getLines
+	funcMap["getPadding"] = getPadding
 	tmpl = tmpl.Funcs(funcMap)
 
 	tmpl, err = tmpl.ParseFiles(templateFiles[0])

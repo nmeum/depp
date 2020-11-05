@@ -1,4 +1,3 @@
-* Fix padding of line numbers
 * Specifically handle git submodules
 * Consider rendering the README through external tools
 	* E.g. markdown.pl, discount, …

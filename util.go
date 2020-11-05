@@ -3,7 +3,9 @@ package main
 import (
 	git "github.com/libgit2/git2go"
 
+	"bytes"
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -15,6 +17,8 @@ var readmeNames = []string{
 	"README.markdown",
 	"README.md",
 }
+
+const nonBreakingSpace string = "&nbsp;"
 
 func getReadme(repo *git.Repository, ref *git.Reference) (string, error) {
 	commit, err := repo.LookupCommit(ref.Target())
@@ -75,6 +79,25 @@ func getLines(input string) []string {
 	}
 
 	return strings.Split(input, "\n")
+}
+
+func getPadding(maxnum int, curnum int) string {
+	max := strconv.Itoa(maxnum)
+	cur := strconv.Itoa(curnum)
+
+	if len(cur) >= len(max) {
+		return ""
+	}
+	diff := len(max) - len(cur)
+
+	buf := new(bytes.Buffer)
+	buf.Grow(diff)
+
+	for i := 0; i < diff; i++ {
+		buf.WriteByte(' ')
+	}
+
+	return buf.String()
 }
 
 func decrement(n int) int {

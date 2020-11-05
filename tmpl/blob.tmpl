@@ -3,8 +3,9 @@
 
 	{{- $blob := .GetBlob (.CurrentFile.Path) -}}
 	<pre class="blob">
-{{- range $i, $line := (getLines $blob) }}
-<a id="L{{ $i }}" href="#L{{ $i }}">{{ $i }}</a>{{ . }}
+{{- $lines := (getLines $blob) -}}
+{{- range $i, $line := $lines }}
+<a id="L{{ $i }}" href="#L{{ $i }}">{{ getPadding (len $lines) $i }}{{ $i }}</a>{{ . }}
 {{- end }}
 	</pre>
 </section>
