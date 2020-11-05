@@ -117,3 +117,8 @@ pre.blob a {
 	color: {{ $grey }};
 	padding-right: 15px;
 }
+
+pre.blob a:hover {
+	color: {{ $red }};
+	text-decoration: none;
+}
