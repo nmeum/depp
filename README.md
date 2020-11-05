@@ -74,4 +74,4 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [git-arr website]: https://blitiri.com.ar/p/git-arr/
 [stagit website]: http://codemadness.nl/git/stagit/log.html
 [libgit2 website]: https://libgit2.org/
-[go webseite]: https://golang.org/
+[go website]: https://golang.org/
