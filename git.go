@@ -79,7 +79,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		return err
 	}
 
-	indexPage, err := r.GetPage(head, "")
+	indexPage, err := r.Page(head, "")
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		}
 
 		fp := filepath.Join(root, e.Name)
-		page, err := r.GetPage(head, fp)
+		page, err := r.Page(head, fp)
 		if err != nil {
 			ret = err
 			return -1
@@ -113,7 +113,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	return ret
 }
 
-func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
+func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
 	var err error
 	page := &RepoPage{Repo: *r}
 
@@ -178,7 +178,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	return entries, nil
 }
 
-func (r *RepoPage) GetReadme() (string, error) {
+func (r *RepoPage) Readme() (string, error) {
 	head, err := r.git.Head()
 	if err != nil {
 		return "", err
@@ -210,7 +210,7 @@ func (r *RepoPage) GetReadme() (string, error) {
 	return "", nil
 }
 
-func (r *RepoPage) GetCommits() ([]*git.Commit, error) {
+func (r *RepoPage) Commits() ([]*git.Commit, error) {
 	var i uint
 
 	commit := r.commit
@@ -230,7 +230,7 @@ func (r *RepoPage) GetCommits() ([]*git.Commit, error) {
 
 }
 
-func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {
+func (r *RepoPage) Blob(file *RepoFile) (string, error) {
 	if file.Type != git.ObjectBlob {
 		return "", errors.New("given RepoFile is not a blob")
 	}
@@ -250,7 +250,7 @@ func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {
 	return string(blob.Contents()), nil
 }
 
-func (r *RepoPage) GetSubmodule(file *RepoFile) (*git.Submodule, error) {
+func (r *RepoPage) Submodule(file *RepoFile) (*git.Submodule, error) {
 	if !file.IsSubmodule() {
 		return nil, errors.New("given RepoFile is not a submodule")
 	}

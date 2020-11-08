@@ -14,7 +14,7 @@
 		</header>
 
 		<main>
-			{{- $commits := (.GetCommits) -}}
+			{{- $commits := (.Commits) -}}
 			{{ if $commits }}
 				{{ template "commits.tmpl" $commits }}
 			{{ end }}
@@ -25,7 +25,7 @@
 				{{ template "blob.tmpl" . }}
 			{{ end }}
 
-			{{- $readme := (.GetReadme) -}}
+			{{- $readme := (.Readme) -}}
 			{{ if $readme }}
 				{{ template "readme.tmpl" $readme }}
 			{{ end }}

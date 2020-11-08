@@ -3,10 +3,10 @@
 
 	<pre class="blob">
 {{- if .CurrentFile.IsSubmodule -}}
-	{{- $module := (.GetSubmodule .CurrentFile) -}}
+	{{- $module := (.Submodule .CurrentFile) -}}
 	{{ $module.Url }} @ {{ $module.IndexId }}
 {{- else -}}
-	{{- $blob := .GetBlob (.CurrentFile) -}}
+	{{- $blob := .Blob (.CurrentFile) -}}
 
 	{{- $lines := (getLines $blob) -}}
 	{{- range $i, $line := $lines }}
