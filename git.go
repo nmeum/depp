@@ -28,6 +28,10 @@ func (f *RepoFile) IsDir() bool {
 	return f.Type == git.ObjectTree
 }
 
+func (f *RepoFile) IsSubmodule() bool {
+	return f.Type == git.ObjectCommit
+}
+
 func (f *RepoFile) PathElements() []string {
 	return strings.SplitN(f.Path, "/", -1)
 }
@@ -208,4 +212,18 @@ func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {
 	}
 
 	return string(blob.Contents()), nil
+}
+
+func (r *RepoPage) GetSubmodule(file *RepoFile) (*git.Submodule, error) {
+	if !file.IsSubmodule() {
+		return nil, errors.New("given RepoFile is not a submodule")
+	}
+	fp := file.FilePath()
+
+	submodule, err := r.git.Submodules.Lookup(fp)
+	if err != nil {
+		return nil, err
+	}
+
+	return submodule, nil
 }

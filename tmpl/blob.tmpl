@@ -1,11 +1,17 @@
 <section id="blob">
 	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
-	{{- $blob := .GetBlob (.CurrentFile) -}}
 	<pre class="blob">
-{{- $lines := (getLines $blob) -}}
-{{- range $i, $line := $lines }}
+{{- if .CurrentFile.IsSubmodule -}}
+	{{- $module := (.GetSubmodule .CurrentFile) -}}
+	{{ $module.Url }} @ {{ $module.IndexId }}
+{{- else -}}
+	{{- $blob := .GetBlob (.CurrentFile) -}}
+
+	{{- $lines := (getLines $blob) -}}
+	{{- range $i, $line := $lines }}
 <a id="L{{ $i }}" href="#L{{ $i }}">{{ getPadding (len $lines) $i }}{{ $i }}</a>{{ . }}
-{{- end }}
+	{{- end }}
+{{- end -}}
 	</pre>
 </section>
