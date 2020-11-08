@@ -3,6 +3,7 @@ package main
 import (
 	git "github.com/libgit2/git2go"
 
+	"errors"
 	"net/url"
 	"path"
 	"path/filepath"
@@ -11,12 +12,16 @@ import (
 
 // RepoFile represents information for a single file/blob.
 type RepoFile struct {
-	Path  string // Slash separated path
-	Type  git.ObjectType
+	Path string // Slash separated path
+	Type git.ObjectType
 }
 
 func (f *RepoFile) Name() string {
 	return path.Base(f.Path)
+}
+
+func (f *RepoFile) FilePath() string {
+	return filepath.FromSlash(f.Path)
 }
 
 func (f *RepoFile) IsDir() bool {
@@ -97,11 +102,6 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 			}
 		}
 
-		// TODO: Explizit handling for git submodules needed
-		if e.Type == git.ObjectCommit {
-			return 1 // Skip git submodules
-		}
-
 		fp := filepath.Join(root, e.Name)
 		page, err := r.GetPage(head, fp)
 		if err != nil {
@@ -176,8 +176,8 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		relpath := filepath.Join(basepath, e.Name)
 
 		file := RepoFile{
-			Path:  filepath.ToSlash(relpath),
-			Type:  e.Type,
+			Path: filepath.ToSlash(relpath),
+			Type: e.Type,
 		}
 
 		entries = append(entries, file)
@@ -190,7 +190,12 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	return entries, nil
 }
 
-func (r *RepoPage) GetBlob(fp string) (string, error) {
+func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {
+	if file.Type != git.ObjectBlob {
+		return "", errors.New("given RepoFile is not a blob")
+	}
+	fp := file.FilePath()
+
 	entry, err := r.tree.EntryByPath(fp)
 	if err != nil {
 		return "", err

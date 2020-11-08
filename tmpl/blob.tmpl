@@ -1,7 +1,7 @@
 <section id="blob">
 	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
-	{{- $blob := .GetBlob (.CurrentFile.Path) -}}
+	{{- $blob := .GetBlob (.CurrentFile) -}}
 	<pre class="blob">
 {{- $lines := (getLines $blob) -}}
 {{- range $i, $line := $lines }}
