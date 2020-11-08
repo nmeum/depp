@@ -12,11 +12,15 @@ import (
 // RepoFile represents information for a single file/blob.
 type RepoFile struct {
 	Path  string // Slash separated path
-	IsDir bool
+	Type  git.ObjectType
 }
 
 func (f *RepoFile) Name() string {
 	return path.Base(f.Path)
+}
+
+func (f *RepoFile) IsDir() bool {
+	return f.Type == git.ObjectTree
 }
 
 func (f *RepoFile) PathElements() []string {
@@ -139,9 +143,9 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		if err != nil {
 			return nil, err
 		}
-		page.CurrentFile.IsDir = entry.Type == git.ObjectTree
+		page.CurrentFile.Type = entry.Type
 
-		if page.CurrentFile.IsDir {
+		if page.CurrentFile.IsDir() {
 			page.tree, err = r.git.LookupTree(entry.Id)
 			if err != nil {
 				panic(err)
@@ -149,7 +153,7 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 			}
 		}
 	} else {
-		page.CurrentFile.IsDir = true
+		page.CurrentFile.Type = git.ObjectTree
 	}
 
 	page.Commits, err = getCommits(page.commit, page.numCommits)
@@ -173,7 +177,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 
 		file := RepoFile{
 			Path:  filepath.ToSlash(relpath),
-			IsDir: e.Type == git.ObjectTree,
+			Type:  e.Type,
 		}
 
 		entries = append(entries, file)
