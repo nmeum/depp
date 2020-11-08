@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// RepoFile represents information for a single file/blob.
 type RepoFile struct {
 	Path  string // Slash separated path
 	IsDir bool
