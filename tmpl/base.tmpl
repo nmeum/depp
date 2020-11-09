@@ -14,8 +14,9 @@
 		</header>
 
 		<main>
-			{{ if .Commits }}
-				{{ template "commits.tmpl" .Commits }}
+			{{- $commits := (.GetCommits) -}}
+			{{ if $commits }}
+				{{ template "commits.tmpl" $commits }}
 			{{ end }}
 
 			{{ if .CurrentFile.IsDir }}

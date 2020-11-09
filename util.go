@@ -1,8 +1,6 @@
 package main
 
 import (
-	git "github.com/libgit2/git2go"
-
 	"bytes"
 	"strconv"
 	"strings"
@@ -16,23 +14,6 @@ var readmeNames = []string{
 }
 
 const nonBreakingSpace string = "&nbsp;"
-
-func getCommits(commit *git.Commit, n uint) ([]*git.Commit, error) {
-	var i uint
-
-	commits := make([]*git.Commit, n)
-	for i = 0; i < n; i++ {
-		if commit == nil {
-			break
-		}
-
-		commits[i] = commit
-		commit = commit.Parent(0)
-	}
-
-	commits = commits[0:i] // Shrink to appropriate size
-	return commits, nil
-}
 
 func getRelPath(n int) string {
 	var ret string

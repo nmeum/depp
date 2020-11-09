@@ -54,7 +54,6 @@ type RepoPage struct {
 	commit *git.Commit
 
 	CurrentFile RepoFile
-	Commits     []*git.Commit
 }
 
 func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
@@ -148,11 +147,6 @@ func (r *Repo) GetPage(ref *git.Reference, fp string) (*RepoPage, error) {
 		page.CurrentFile.Type = git.ObjectTree
 	}
 
-	page.Commits, err = getCommits(page.commit, page.numCommits)
-	if err != nil {
-		return nil, err
-	}
-
 	return page, nil
 }
 
@@ -212,6 +206,26 @@ func (r *RepoPage) GetReadme() (string, error) {
 	}
 
 	return "", nil
+}
+
+func (r *RepoPage) GetCommits() ([]*git.Commit, error) {
+	var i uint
+
+	commit := r.commit
+	commits := make([]*git.Commit, r.numCommits)
+
+	for i = 0; i < r.numCommits; i++ {
+		if commit == nil {
+			break
+		}
+
+		commits[i] = commit
+		commit = commit.Parent(0)
+	}
+
+	commits = commits[0:i] // Shrink to appropriate size
+	return commits, nil
+
 }
 
 func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {
