@@ -56,6 +56,10 @@ func getPadding(maxnum int, curnum int) string {
 	return buf.String()
 }
 
+func isIndexPage(page *RepoPage) bool {
+	return page.CurrentFile.Path == ""
+}
+
 func decrement(n int) int {
 	return n - 1
 }

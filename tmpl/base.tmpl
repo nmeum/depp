@@ -14,7 +14,7 @@
 		</header>
 
 		<main>
-			{{ if (not .CurrentFile.Path) }}
+			{{ if (isIndexPage .) }}
 				{{- $commits := (.Commits) -}}
 				{{ if $commits }}
 					{{ template "commits.tmpl" $commits }}
@@ -27,7 +27,7 @@
 				{{ template "blob.tmpl" . }}
 			{{ end }}
 
-			{{ if (not .CurrentFile.Path) }}
+			{{ if (isIndexPage .) }}
 				{{- $readme := (.Readme) -}}
 				{{ if $readme }}
 					{{ template "readme.tmpl" $readme }}

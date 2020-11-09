@@ -39,7 +39,7 @@ func usage() {
 
 func walkPages(page *RepoPage) error {
 	name := page.CurrentFile.Path
-	if page.CurrentFile.Path == "" {
+	if isIndexPage(page) {
 		name = "index"
 	}
 
@@ -73,6 +73,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["decrement"] = decrement
 	funcMap["getLines"] = getLines
 	funcMap["getPadding"] = getPadding
+	funcMap["isIndexPage"] = isIndexPage
 	tmpl = tmpl.Funcs(funcMap)
 
 	tmpl, err = tmpl.ParseFiles(templateFiles[0])
