@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -173,6 +174,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		return nil, ret
 	}
 
+	sort.Sort(byType(entries))
 	return entries, nil
 }
 

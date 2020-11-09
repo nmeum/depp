@@ -1,7 +1,6 @@
 * Consider rendering the README through external tools
 	* E.g. markdown.pl, discount, …
 	* A git-readme-render file could be invoked on a per-repo basis
-* Sort Tree entries by type
 * Optionally include a short description in the header
 	* For example, through a description file as used by gitweb
 * Don't use inline css, ship it in a separate file
