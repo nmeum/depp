@@ -14,9 +14,11 @@
 		</header>
 
 		<main>
-			{{- $commits := (.Commits) -}}
-			{{ if $commits }}
-				{{ template "commits.tmpl" $commits }}
+			{{ if (not .CurrentFile.Path) }}
+				{{- $commits := (.Commits) -}}
+				{{ if $commits }}
+					{{ template "commits.tmpl" $commits }}
+				{{ end }}
 			{{ end }}
 
 			{{ if .CurrentFile.IsDir }}
@@ -25,9 +27,11 @@
 				{{ template "blob.tmpl" . }}
 			{{ end }}
 
-			{{- $readme := (.Readme) -}}
-			{{ if $readme }}
-				{{ template "readme.tmpl" $readme }}
+			{{ if (not .CurrentFile.Path) }}
+				{{- $readme := (.Readme) -}}
+				{{ if $readme }}
+					{{ template "readme.tmpl" $readme }}
+				{{ end }}
 			{{ end }}
 		</main>
 	</body>
