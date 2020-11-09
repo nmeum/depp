@@ -42,9 +42,8 @@ type Repo struct {
 	path       string
 	numCommits uint
 
-	Title  string
-	URL    string
-	Readme string
+	Title string
+	URL   string
 }
 
 // RepoPage represents information required per reference.
@@ -69,17 +68,6 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 
 	r.Title = filepath.Base(fp)
 	r.URL = gitServer.String()
-
-	head, err := r.git.Head()
-	if err != nil {
-		return nil, err
-	}
-	r.Readme, err = getReadme(r.git, head)
-	if err == noReadme || len(r.Readme) == 0 {
-		r.Readme = ""
-	} else if err != nil {
-		return nil, err
-	}
 
 	r.numCommits = commits
 	return r, nil
@@ -192,6 +180,38 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	}
 
 	return entries, nil
+}
+
+func (r *RepoPage) GetReadme() (string, error) {
+	head, err := r.git.Head()
+	if err != nil {
+		return "", err
+	}
+
+	commit, err := r.git.LookupCommit(head.Target())
+	if err != nil {
+		return "", err
+	}
+	tree, err := commit.Tree()
+	if err != nil {
+		return "", err
+	}
+
+	for _, name := range readmeNames {
+		entry := tree.EntryByName(name)
+		if entry == nil {
+			continue
+		}
+
+		blob, err := r.git.LookupBlob(entry.Id)
+		if err != nil {
+			return "", err
+		}
+
+		return string(blob.Contents()), nil
+	}
+
+	return "", nil
 }
 
 func (r *RepoPage) GetBlob(file *RepoFile) (string, error) {

@@ -24,8 +24,9 @@
 				{{ template "blob.tmpl" . }}
 			{{ end }}
 
-			{{ if .Readme }}
-				{{ template "readme.tmpl" .Readme }}
+			{{- $readme := (.GetReadme) -}}
+			{{ if $readme }}
+				{{ template "readme.tmpl" $readme }}
 			{{ end }}
 		</main>
 	</body>

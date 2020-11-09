@@ -43,7 +43,6 @@ func walkPages(page *RepoPage) error {
 		name = "index"
 	} else { // Clear info only used once on the index page
 		page.Commits = nil
-		page.Readme = ""
 	}
 
 	fp := filepath.Join(*destination, name+".html")
