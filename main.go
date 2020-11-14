@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/nmeum/depp/gitweb"
 )
 
 var templateFiles = []string{
@@ -37,7 +39,7 @@ func usage() {
 	os.Exit(2)
 }
 
-func walkPages(page *RepoPage) error {
+func walkPages(page *gitweb.RepoPage) error {
 	name := page.CurrentFile.Path
 	if isIndexPage(page) {
 		name = "index"
@@ -106,7 +108,7 @@ func main() {
 	}
 
 	path := flag.Arg(0)
-	repo, err := NewRepo(path, gitURL, *commits)
+	repo, err := gitweb.NewRepo(path, gitURL, *commits)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,14 +4,9 @@ import (
 	"bytes"
 	"strconv"
 	"strings"
-)
 
-var readmeNames = []string{
-	"README",
-	"README.txt",
-	"README.markdown",
-	"README.md",
-}
+	"github.com/nmeum/depp/gitweb"
+)
 
 const nonBreakingSpace string = "&nbsp;"
 
@@ -56,7 +51,7 @@ func getPadding(maxnum int, curnum int) string {
 	return buf.String()
 }
 
-func isIndexPage(page *RepoPage) bool {
+func isIndexPage(page *gitweb.RepoPage) bool {
 	return page.CurrentFile.Path == ""
 }
 

@@ -1,4 +1,4 @@
-package main
+package gitweb
 
 import (
 	git "github.com/libgit2/git2go"

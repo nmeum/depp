@@ -1,4 +1,4 @@
-package main
+package gitweb
 
 // byType sorts RepoFiles by their object type (directories first).
 type byType []RepoFile
