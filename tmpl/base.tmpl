@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<header>
-			<h1>{{ .Title }}</h1>
+			<h1><a href="{{ relIndex .CurrentFile }}/index.html">{{ .Title }}</a></h1>
 			<pre>git clone {{ .URL }}/{{ .Title }}.git</pre>
 		</header>
 

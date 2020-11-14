@@ -51,6 +51,11 @@ func getPadding(maxnum int, curnum int) string {
 	return buf.String()
 }
 
+func relIndex(file *gitweb.RepoFile) string {
+	elems := file.PathElements()
+	return getRelPath(len(elems) - 1)
+}
+
 func isIndexPage(page *gitweb.RepoPage) bool {
 	return page.CurrentFile.Path == ""
 }

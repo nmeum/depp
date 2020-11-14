@@ -75,6 +75,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["decrement"] = decrement
 	funcMap["getLines"] = getLines
 	funcMap["getPadding"] = getPadding
+	funcMap["relIndex"] = relIndex
 	funcMap["isIndexPage"] = isIndexPage
 	tmpl = tmpl.Funcs(funcMap)
 
