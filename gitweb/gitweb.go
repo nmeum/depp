@@ -12,9 +12,9 @@ import (
 // Repo represents information required per repository.
 type Repo struct {
 	git        *git.Repository
-	path       string
 	numCommits uint
 
+	Path  string
 	Title string
 	URL   string
 }
@@ -38,7 +38,7 @@ var readmeNames = []string{
 
 func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	var err error
-	r := &Repo{path: fp}
+	r := &Repo{Path: fp}
 
 	r.git, err = git.OpenRepository(fp)
 	if err != nil {
