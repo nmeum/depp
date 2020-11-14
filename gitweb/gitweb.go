@@ -5,37 +5,9 @@ import (
 
 	"errors"
 	"net/url"
-	"path"
 	"path/filepath"
 	"sort"
-	"strings"
 )
-
-// RepoFile represents information for a single file/blob.
-type RepoFile struct {
-	Path string // Slash separated path
-	Type git.ObjectType
-}
-
-func (f *RepoFile) Name() string {
-	return path.Base(f.Path)
-}
-
-func (f *RepoFile) FilePath() string {
-	return filepath.FromSlash(f.Path)
-}
-
-func (f *RepoFile) IsDir() bool {
-	return f.Type == git.ObjectTree
-}
-
-func (f *RepoFile) IsSubmodule() bool {
-	return f.Type == git.ObjectCommit
-}
-
-func (f *RepoFile) PathElements() []string {
-	return strings.SplitN(f.Path, "/", -1)
-}
 
 // Repo represents information required per repository.
 type Repo struct {
