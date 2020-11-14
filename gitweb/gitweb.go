@@ -29,6 +29,13 @@ type RepoPage struct {
 	CurrentFile RepoFile
 }
 
+var readmeNames = []string{
+	"README",
+	"README.txt",
+	"README.markdown",
+	"README.md",
+}
+
 func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	var err error
 	r := &Repo{path: fp}
