@@ -10,7 +10,7 @@ import (
 	"github.com/nmeum/depp/gitweb"
 )
 
-const renderScript = "git-readme-render"
+const renderScript = "git-render-readme"
 
 func runWithInput(cmd *exec.Cmd, input string) (string, error) {
 	stdin, err := cmd.StdinPipe()
