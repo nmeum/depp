@@ -114,7 +114,7 @@ nav ul li:not(:last-child):after  {
    **/}}
 
 #readme {
-	max-width: 45%;
+	max-width: 50em;
 }
 #readme pre {
 	padding: 5px;
