@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"html/template"
 	"path/filepath"
 
 	"github.com/nmeum/depp/gitweb"
@@ -30,7 +31,7 @@ func runWithInput(cmd *exec.Cmd, input string) (string, error) {
 	return string(out), nil
 }
 
-func renderReadme(repo *gitweb.Repo) (string, error) {
+func renderReadme(repo *gitweb.Repo) (template.HTML, error) {
 	fp := filepath.Join(repo.Path, renderScript)
 	renderer, err := exec.LookPath(fp)
 	if err != nil {
@@ -47,5 +48,10 @@ func renderReadme(repo *gitweb.Repo) (string, error) {
 		return "", err
 	}
 
-	return runWithInput(cmd, readme)
+	out, err := runWithInput(cmd, readme)
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(out), nil
 }
