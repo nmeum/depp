@@ -16,6 +16,7 @@ body {
 h1, h2, h3, h4, h5, h6, h7, h8, h9 {
 	padding: 0px;
 	margin: 0px 0px 5px 0px;
+	text-transform: lowercase;
 }
 p {
 	padding: 0px;
@@ -107,6 +108,23 @@ nav ul li:not(:last-child):after  {
 	color: {{ $lightGrey }};
 	padding: 8px;
 	content: "/";
+}
+
+{{/**
+   * README
+   **/}}
+
+#readme {
+	max-width: 45%;
+}
+#readme pre {
+	padding: 10px;
+}
+#readme p {
+	padding: 5px 0px 5px 0px;
+}
+#readme a {
+	color: {{ $blue }};
 }
 
 {{/**
