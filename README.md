@@ -49,6 +49,21 @@ on the index page, and `git-daemon(1)` is running on the same domain:
 To automate this process create a `post-receive` hook in your git
 repository, see `githooks(5)` for more information on this topic.
 
+## README Rendering
+
+Rendering README files written in a chosen markup language (e.g.
+markdown) is supported. This is achieved by including an executable file
+called `git-render-readme` in the bare Git repository. When executed,
+this file must receive input in a markup language on standard input and
+must write plain HTML to standard output.
+
+For example, consider the following `git-render-readme` script which
+uses the `markdown(1)` program provided by the [discount][discount website]
+markdown implementation:
+
+	#!/bin/sh
+	exec markdown
+
 ## Caveats
 
 Existing HTML files are not tracked, thus generated HTML for files
@@ -75,3 +90,4 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [stagit website]: http://codemadness.nl/git/stagit/log.html
 [libgit2 website]: https://libgit2.org/
 [go website]: https://golang.org/
+[discount website]: http://www.pell.portland.or.us/~orc/Code/discount/
