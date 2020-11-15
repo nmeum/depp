@@ -31,7 +31,7 @@ func runWithInput(cmd *exec.Cmd, input string) (string, error) {
 	return string(out), nil
 }
 
-func renderReadme(repo *gitweb.Repo) (template.HTML, error) {
+func renderReadme(repo *gitweb.RepoPage) (template.HTML, error) {
 	fp := filepath.Join(repo.Path, renderScript)
 	renderer, err := exec.LookPath(fp)
 	if err != nil {

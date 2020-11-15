@@ -77,6 +77,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["getPadding"] = getPadding
 	funcMap["relIndex"] = relIndex
 	funcMap["isIndexPage"] = isIndexPage
+	funcMap["renderReadme"] = renderReadme
 	tmpl = tmpl.Funcs(funcMap)
 
 	tmpl, err = tmpl.ParseFiles(templateFiles[0])
