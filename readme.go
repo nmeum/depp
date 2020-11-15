@@ -1,10 +1,10 @@
 package main
 
 import (
+	"html/template"
 	"io"
 	"os"
 	"os/exec"
-	"html/template"
 	"path/filepath"
 
 	"github.com/nmeum/depp/gitweb"
@@ -32,22 +32,23 @@ func runWithInput(cmd *exec.Cmd, input string) (string, error) {
 }
 
 func renderReadme(repo *gitweb.RepoPage) (template.HTML, error) {
+	readme, err := repo.Readme()
+	if err != nil {
+		return "", err
+	}
+
 	fp := filepath.Join(repo.Path, renderScript)
 	renderer, err := exec.LookPath(fp)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return "", nil
+		execError, ok := err.(*exec.Error)
+		if ok && os.IsNotExist(execError.Unwrap()) {
+			return template.HTML("<pre>" + readme + "</pre>"), nil
 		}
 
 		return "", err
 	}
 
 	cmd := exec.Command(renderer)
-	readme, err := repo.Readme()
-	if err != nil {
-		return "", err
-	}
-
 	out, err := runWithInput(cmd, readme)
 	if err != nil {
 		return "", err
