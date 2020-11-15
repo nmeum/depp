@@ -130,34 +130,7 @@ func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
 	return page, nil
 }
 
-func (r *RepoPage) Files() ([]RepoFile, error) {
-	var ret error
-	var entries []RepoFile
-	r.tree.Walk(func(root string, e *git.TreeEntry) int {
-		if root != "" {
-			return 1 /* Skip passed entry */
-		}
-
-		basepath := filepath.Base(r.CurrentFile.Path)
-		relpath := filepath.Join(basepath, e.Name)
-
-		file := RepoFile{
-			Path: filepath.ToSlash(relpath),
-			Type: e.Type,
-		}
-
-		entries = append(entries, file)
-		return 0
-	})
-	if ret != nil {
-		return nil, ret
-	}
-
-	sort.Sort(byType(entries))
-	return entries, nil
-}
-
-func (r *RepoPage) Readme() (string, error) {
+func (r *Repo) Readme() (string, error) {
 	head, err := r.git.Head()
 	if err != nil {
 		return "", err
@@ -187,6 +160,33 @@ func (r *RepoPage) Readme() (string, error) {
 	}
 
 	return "", nil
+}
+
+func (r *RepoPage) Files() ([]RepoFile, error) {
+	var ret error
+	var entries []RepoFile
+	r.tree.Walk(func(root string, e *git.TreeEntry) int {
+		if root != "" {
+			return 1 /* Skip passed entry */
+		}
+
+		basepath := filepath.Base(r.CurrentFile.Path)
+		relpath := filepath.Join(basepath, e.Name)
+
+		file := RepoFile{
+			Path: filepath.ToSlash(relpath),
+			Type: e.Type,
+		}
+
+		entries = append(entries, file)
+		return 0
+	})
+	if ret != nil {
+		return nil, ret
+	}
+
+	sort.Sort(byType(entries))
+	return entries, nil
 }
 
 func (r *RepoPage) Commits() ([]*git.Commit, error) {
