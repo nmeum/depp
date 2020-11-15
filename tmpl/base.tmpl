@@ -28,7 +28,7 @@
 			{{ end }}
 
 			{{ if (isIndexPage .) }}
-				{{- $readme := (.Readme) -}}
+				{{- $readme := (renderReadme .) -}}
 				{{ if $readme }}
 					{{ template "readme.tmpl" $readme }}
 				{{ end }}
