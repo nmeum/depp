@@ -34,11 +34,9 @@ header pre {
 section, header {
 	padding: 10px 10px 10px 10px;
 }
-section pre {
+pre {
 	padding: 0px;
 	margin: 0px;
-
-	tab-size: 4;
 }
 
 header {
