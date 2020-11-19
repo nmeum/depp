@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"html/template"
@@ -12,15 +13,8 @@ import (
 	"github.com/nmeum/depp/gitweb"
 )
 
-var templateFiles = []string{
-	"./tmpl/base.tmpl",
-	"./tmpl/style.css",
-	"./tmpl/commits.tmpl",
-	"./tmpl/tree.tmpl",
-	"./tmpl/readme.tmpl",
-	"./tmpl/blob.tmpl",
-	"./tmpl/breadcrumb.tmpl",
-}
+//go:embed tmpl
+var templates embed.FS
 
 var (
 	commits     = flag.Uint("c", 5, "amount of recent commits to include")
@@ -67,7 +61,7 @@ func walkPages(page *gitweb.RepoPage) error {
 func buildTmpl() (*template.Template, error) {
 	var err error
 
-	name := filepath.Base(templateFiles[0])
+	const name = "base.tmpl"
 	tmpl := template.New(name)
 
 	funcMap := make(template.FuncMap)
@@ -80,12 +74,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["renderReadme"] = renderReadme
 	tmpl = tmpl.Funcs(funcMap)
 
-	tmpl, err = tmpl.ParseFiles(templateFiles[0])
-	if err != nil {
-		return nil, err
-	}
-
-	tmpl, err = tmpl.ParseFiles(templateFiles[1:]...)
+	tmpl, err = tmpl.ParseFS(templates, "tmpl/*")
 	if err != nil {
 		return nil, err
 	}
