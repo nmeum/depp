@@ -25,18 +25,15 @@ p {
 header, main section {
 	padding: 10px;
 }
-header pre {
-	color: {{ $grey }};
-
-	padding: 0px;
-	margin: 0px;
-}
-section, header {
-	padding: 10px 10px 10px 10px;
-}
 pre {
 	padding: 0px;
 	margin: 0px;
+}
+header pre {
+	color: {{ $grey }};
+}
+section, header {
+	padding: 10px 10px 10px 10px;
 }
 
 header {
