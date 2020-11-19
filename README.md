@@ -24,23 +24,42 @@ web page should simply clone the repository and use `git(1)` as usual.
 
 Proof of concept, buggy and incomplete.
 
-## Usage
+## Dependencies
 
-Currently, this software is not intended to be installed system-wide.
-Instead, use it directly from the repository. For normal operation,
-[libgit2][libgit2 website] and [go][go website] are required. Afterwards
-installing libgit2, clone this repository using:
+This software has the following dependencies:
 
-	$ git clone --recursive https://github.com/nmeum/depp
+* [libgit2][libgit2 website]
+* [go][go website] >= 1.16.0 (`embed` package needed)
 
-Change into the newly cloned repository and build the software using:
+## Installation
 
-	$ go build
+This program can be installed using `go get`, if go itself is configured
+properly. If not, installation using `GNU make` is also possible. Both
+options are further described in the following.
 
-Afterwards, HTML for a given git repository can be generated using the
-`./depp` binary. For example, assuming you have a web server serving
-files located at `/var/www/htdocs/git.example.org`, you want 10 commits
-on the index page, and `git-daemon(1)` is running on the same domain:
+The vendored [git2go][git2go repo] library (a wrapper around libgit2)
+has a variety of build options chosen through build tags (e.g.  dynamic
+vs. static linking against libgit2). Please consult the
+[git2go documentation][git2go build] for further information.
+
+### go get
+
+To install to the program using `go get` run the following command:
+
+	$ go get github.com/nmeum/depp
+
+### GNU make
+
+To install to the program using `GNU make` run the following commands:
+
+	$ make
+	$ make install
+
+## Usage Example
+
+Assuming you have a web server serving files located at
+`/var/www/htdocs/git.example.org`, you want 10 commits on the index
+page, and `git-daemon(1)` is running on the same domain:
 
 	$ ./depp -c 10 -g git://git.example.org \
 		-d /var/www/htdocs/git.example.org \
@@ -91,3 +110,5 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [libgit2 website]: https://libgit2.org/
 [go website]: https://golang.org/
 [discount website]: http://www.pell.portland.or.us/~orc/Code/discount/
+[git2go repo]: https://github.com/libgit2/git2go
+[git2go build]: https://github.com/libgit2/git2go#installing
