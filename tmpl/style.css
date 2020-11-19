@@ -118,9 +118,11 @@ nav ul li:not(:last-child):after  {
 }
 #readme pre {
 	padding: 5px;
+	margin: 5px 0px 5px 0px;
 }
 #readme pre.raw {
 	padding: 0px;
+	margin: 0px;
 }
 #readme p {
 	padding: 5px 0px 5px 0px;
