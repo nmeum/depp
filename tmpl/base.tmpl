@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+	{{- $base := (relIndex .CurrentFile) -}}
 	<head>
 		<meta charset="UTF-8" />
 		<title>{{ .Title }}</title>
-		<style>
-			{{ template "style.css" }}
-		</style>
+		<link rel="stylesheet" href="{{ $base }}style.css">
 	</head>
 	<body>
 		<header>
-			<h1><a href="{{ relIndex .CurrentFile }}/index.html">{{ .Title }}</a></h1>
+			<h1><a href="{{ $base }}index.html">{{ .Title }}</a></h1>
 			<pre>git clone {{ .URL }}/{{ .Title }}.git</pre>
 		</header>
 

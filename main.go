@@ -58,7 +58,27 @@ func walkPages(page *gitweb.RepoPage) error {
 	return nil
 }
 
-func buildTmpl() (*template.Template, error) {
+func createCSS(path string) error {
+	stylesheet, err := template.ParseFS(templates, "tmpl/*.css")
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = stylesheet.Execute(file, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildHTML() (*template.Template, error) {
 	var err error
 
 	const name = "base.tmpl"
@@ -74,7 +94,7 @@ func buildTmpl() (*template.Template, error) {
 	funcMap["renderReadme"] = renderReadme
 	tmpl = tmpl.Funcs(funcMap)
 
-	tmpl, err = tmpl.ParseFS(templates, "tmpl/*")
+	tmpl, err = tmpl.ParseFS(templates, "tmpl/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -104,11 +124,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tmpl, err = buildTmpl()
+	tmpl, err = buildHTML()
 	if err != nil {
 		log.Fatal(err)
 	}
 	err = repo.Walk(walkPages)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = createCSS(filepath.Join(*destination, "style.css"))
 	if err != nil {
 		log.Fatal(err)
 	}
