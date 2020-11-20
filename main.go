@@ -102,8 +102,26 @@ func buildHTML() (*template.Template, error) {
 	return tmpl, nil
 }
 
-func main() {
+func generate(repo *gitweb.Repo) error {
 	var err error
+	tmpl, err = buildHTML()
+	if err != nil {
+		return err
+	}
+	err = repo.Walk(walkPages)
+	if err != nil {
+		return err
+	}
+
+	err = createCSS(filepath.Join(*destination, "style.css"))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
 	log.SetFlags(log.Lshortfile)
 
 	flag.Usage = usage
@@ -123,17 +141,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	tmpl, err = buildHTML()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = repo.Walk(walkPages)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = createCSS(filepath.Join(*destination, "style.css"))
+	err = generate(repo)
 	if err != nil {
 		log.Fatal(err)
 	}
