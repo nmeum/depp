@@ -88,7 +88,7 @@ func buildHTML() (*template.Template, error) {
 	funcMap["getRelPath"] = getRelPath
 	funcMap["decrement"] = decrement
 	funcMap["getLines"] = getLines
-	funcMap["getPadding"] = getPadding
+	funcMap["padNumber"] = padNumber
 	funcMap["relIndex"] = relIndex
 	funcMap["isIndexPage"] = isIndexPage
 	funcMap["renderReadme"] = renderReadme

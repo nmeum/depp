@@ -32,7 +32,7 @@ func getLines(input string) []string {
 	return strings.Split(input, "\n")
 }
 
-func getPadding(maxnum int, curnum int) string {
+func padNumber(maxnum int, curnum int) string {
 	max := strconv.Itoa(maxnum)
 	cur := strconv.Itoa(curnum)
 

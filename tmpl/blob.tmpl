@@ -10,7 +10,7 @@
 
 	{{- $lines := (getLines $blob) -}}
 	{{- range $i, $line := $lines }}
-<a id="L{{ $i }}" href="#L{{ $i }}">{{ getPadding (len $lines) $i }}{{ $i }}</a>{{ . }}
+<a id="L{{ $i }}" href="#L{{ $i }}">{{ padNumber (len $lines) $i }}{{ $i }}</a>{{ . }}
 	{{- end }}
 {{- end -}}
 	</pre>
