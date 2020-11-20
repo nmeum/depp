@@ -34,13 +34,8 @@ This software has the following dependencies:
 ## Installation
 
 This program can be installed using `go get`, if go itself is configured
-properly. If not, installation using `GNU make` is also possible. Both
-options are further described in the following.
-
-The vendored [git2go][git2go repo] library (a wrapper around libgit2)
-has a variety of build options chosen through build tags (e.g.  dynamic
-vs. static linking against libgit2). Please consult the
-[git2go documentation][git2go build] for further information.
+properly. If not, simply build using `go build -trimpath`. The two
+methods are described further below.
 
 ### go get
 
@@ -48,12 +43,14 @@ To install to the program using `go get` run the following command:
 
 	$ go get github.com/nmeum/depp
 
-### GNU make
+### go build
 
-To install to the program using `GNU make` run the following commands:
+To install the program without configuring a `$GOPATH`:
 
-	$ make
-	$ make install
+	$ git clone --recursive git://github.com/nmeum/depp
+	$ go build -trimpath
+
+Afterwards, copy `./depp` to a directory in your `$PATH`.
 
 ## Usage Example
 
