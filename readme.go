@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"html/template"
 	"io"
 	"os"
@@ -40,8 +41,7 @@ func renderReadme(repo *gitweb.RepoPage) (template.HTML, error) {
 	fp := filepath.Join(repo.Path, renderScript)
 	renderer, err := exec.LookPath(fp)
 	if err != nil {
-		execError, ok := err.(*exec.Error)
-		if ok && os.IsNotExist(execError.Unwrap()) {
+		if errors.Is(errors.Unwrap(err), os.ErrNotExist) {
 			return template.HTML(`<pre class="raw">` + readme + "</pre>"), nil
 		}
 
