@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"html/template"
 	"strconv"
 	"strings"
 
@@ -32,7 +33,7 @@ func getLines(input string) []string {
 	return strings.Split(input, "\n")
 }
 
-func padNumber(maxnum int, curnum int) string {
+func padNumber(maxnum int, curnum int) template.HTML {
 	max := strconv.Itoa(maxnum)
 	cur := strconv.Itoa(curnum)
 
@@ -45,10 +46,10 @@ func padNumber(maxnum int, curnum int) string {
 	buf.Grow(diff)
 
 	for i := 0; i < diff; i++ {
-		buf.WriteByte(' ')
+		buf.WriteString(nonBreakingSpace)
 	}
 
-	return buf.String()
+	return template.HTML(buf.String())
 }
 
 func relIndex(file *gitweb.RepoFile) string {
