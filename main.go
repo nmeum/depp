@@ -59,7 +59,7 @@ func walkPages(page *gitweb.RepoPage) error {
 }
 
 func createCSS(path string) error {
-	stylesheet, err := template.ParseFS(templates, "tmpl/*.css")
+	stylesheet, err := template.ParseFS(templates, "tmpl/css/*.tmpl")
 	if err != nil {
 		return err
 	}
