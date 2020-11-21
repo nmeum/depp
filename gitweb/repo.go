@@ -3,7 +3,10 @@ package gitweb
 import (
 	git "github.com/libgit2/git2go"
 
+	"errors"
+	"io/ioutil"
 	"net/url"
+	"os"
 	"path/filepath"
 )
 
@@ -16,6 +19,9 @@ type Repo struct {
 	Title string
 	URL   string
 }
+
+// File name of the git description file.
+const descFn = "description"
 
 var readmeNames = []string{
 	"README",
@@ -148,4 +154,23 @@ func (r *Repo) Readme() (string, error) {
 	}
 
 	return "", nil
+}
+
+func (r *Repo) Description() (string, error) {
+	fp := filepath.Join(r.Path, descFn)
+
+	file, err := os.Open(fp)
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil
+	} else if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	desc, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	return string(desc), nil
 }
