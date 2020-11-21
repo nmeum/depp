@@ -51,6 +51,7 @@ To install to the program using `go get` run the following command:
 To install the program without configuring a `$GOPATH`:
 
 	$ git clone --recursive git://github.com/nmeum/depp
+	$ cd depp
 	$ go build -trimpath
 
 Afterwards, copy `./depp` to a directory in your `$PATH`.
