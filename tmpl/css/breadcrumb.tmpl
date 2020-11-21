@@ -1,0 +1,15 @@
+nav, nav ul, nav li, nav h2 {
+	display: inline-block;
+}
+
+nav ul {
+	margin: 0px;
+	padding: 0px;
+	list-style: none
+}
+
+nav ul li:not(:last-child):after  {
+	color: var(--color-light-grey);
+	padding: 8px;
+	content: "/";
+}

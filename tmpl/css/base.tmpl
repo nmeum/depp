@@ -1,0 +1,48 @@
+:root {
+	--color-black: black;
+	--color-blue: #038;
+	--color-red: #800;
+	--color-grey: grey;
+	--color-light-grey: #ccc;
+}
+
+body {
+	color: var(--color-black);
+	font-family: monospace;
+}
+
+h1, h2, h3, h4, h5, h6, h7, h8, h9 {
+	padding: 0px;
+	margin: 0px 0px 5px 0px;
+}
+p {
+	padding: 0px;
+	margin: 5px 0px 5px 0px;
+}
+
+header, main section {
+	padding: 10px;
+}
+pre {
+	padding: 0px;
+	margin: 0px;
+}
+header pre {
+	color: var(--color-grey);
+}
+section, header {
+	padding: 10px 10px 10px 10px;
+}
+
+header {
+	border-bottom: 3px solid var(--color-light-grey);
+}
+main section:not(:last-child) {
+	border-bottom: 3px solid var(--color-grey);
+}
+
+{{ template "commits.tmpl" }}
+{{ template "tree.tmpl" }}
+{{ template "breadcrumb.tmpl" }}
+{{ template "readme.tmpl" }}
+{{ template "blob.tmpl" }}
