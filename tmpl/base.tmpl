@@ -9,7 +9,10 @@
 	<body>
 		<header>
 			<h1><a href="{{ $base }}index.html">{{ .Title }}</a></h1>
-			<pre>git clone {{ .URL }}/{{ .Title }}.git</pre>
+			{{ if .Description -}}
+				<p>{{ .Description }}</p>
+			{{- end }}
+			<pre>git clone <code>{{ .URL }}/{{ .Title}}.git</code></pre>
 		</header>
 
 		<main>
