@@ -72,8 +72,8 @@ repository, see `githooks(5)` for more information on this topic.
 Rendering README files written in a chosen markup language (e.g.
 markdown) is supported. This is achieved by including an executable file
 called `git-render-readme` in the bare Git repository. When executed,
-this file must receive input in a markup language on standard input and
-must write plain HTML to standard output.
+this file receives the README content on standard input and must write
+plain HTML to standard output.
 
 For example, consider the following `git-render-readme` script which
 uses the `markdown(1)` program provided by the [discount][discount website]
