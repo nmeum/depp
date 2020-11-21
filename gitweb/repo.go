@@ -159,16 +159,10 @@ func (r *Repo) Readme() (string, error) {
 func (r *Repo) Description() (string, error) {
 	fp := filepath.Join(r.Path, descFn)
 
-	file, err := os.Open(fp)
+	desc, err := ioutil.ReadFile(fp)
 	if errors.Is(err, os.ErrNotExist) {
 		return "", nil
 	} else if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	desc, err := ioutil.ReadAll(file)
-	if err != nil {
 		return "", err
 	}
 
