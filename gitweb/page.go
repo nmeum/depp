@@ -86,6 +86,9 @@ func (r *RepoPage) Blob(file *RepoFile) (string, error) {
 }
 
 func (r *RepoPage) Submodule(file *RepoFile) (*git.Submodule, error) {
+	// TODO: This function does not work in bare repositories.
+	// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
+
 	if !file.IsSubmodule() {
 		return nil, errors.New("given RepoFile is not a submodule")
 	}
