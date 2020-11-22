@@ -1,2 +1,0 @@
-* Optionally include a short description in the header
-	* For example, through a description file as used by gitweb
