@@ -4,6 +4,7 @@ import (
 	git "github.com/libgit2/git2go"
 
 	"errors"
+	"fmt"
 	"path/filepath"
 	"sort"
 )
@@ -86,25 +87,19 @@ func (r *RepoPage) Blob(file *RepoFile) (string, error) {
 }
 
 func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
-	// TODO: Submodules.Lookup does not work in bare repositories.
-	// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
-	//
-	// Therefore, this function simply returns the contents of .gitmodules.
-
 	if !file.IsSubmodule() {
 		return "", errors.New("given RepoFile is not a submodule")
 	}
+	fp := file.FilePath()
 
-	entry, err := r.tree.EntryByPath(".gitmodules")
-	if err != nil {
-		return "", err
+	submodule, err := r.git.Submodules.Lookup(fp)
+	if git.IsErrorClass(err, git.ErrClassSubmodule) {
+		// TODO: Submodules.Lookup does not work in bare repositories.
+		// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
+		gitmodules := &RepoFile{".gitmodules", git.ObjectBlob}
+		return r.Blob(gitmodules)
 	}
 
-	oid := entry.Id
-	blob, err := r.git.LookupBlob(oid)
-	if err != nil {
-		return "", err
-	}
-
-	return string(blob.Contents()), nil
+	out := fmt.Sprintf("%v @ %v", submodule.Url(), submodule.IndexId())
+	return out, nil
 }
