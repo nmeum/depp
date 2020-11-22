@@ -85,19 +85,26 @@ func (r *RepoPage) Blob(file *RepoFile) (string, error) {
 	return string(blob.Contents()), nil
 }
 
-func (r *RepoPage) Submodule(file *RepoFile) (*git.Submodule, error) {
-	// TODO: This function does not work in bare repositories.
+func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
+	// TODO: Submodules.Lookup does not work in bare repositories.
 	// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
+	//
+	// Therefore, this function simply returns the contents of .gitmodules.
 
 	if !file.IsSubmodule() {
-		return nil, errors.New("given RepoFile is not a submodule")
+		return "", errors.New("given RepoFile is not a submodule")
 	}
-	fp := file.FilePath()
 
-	submodule, err := r.git.Submodules.Lookup(fp)
+	entry, err := r.tree.EntryByPath(".gitmodules")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return submodule, nil
+	oid := entry.Id
+	blob, err := r.git.LookupBlob(oid)
+	if err != nil {
+		return "", err
+	}
+
+	return string(blob.Contents()), nil
 }

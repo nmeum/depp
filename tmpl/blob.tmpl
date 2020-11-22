@@ -2,16 +2,16 @@
 	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
 	<pre class="blob">
-{{- if .CurrentFile.IsSubmodule -}}
-	{{- $module := (.Submodule .CurrentFile) -}}
-	{{ $module.Url }} @ {{ $module.IndexId }}
-{{- else -}}
-	{{- $blob := .Blob (.CurrentFile) -}}
+	{{- $blob := "" -}}
+	{{- if .CurrentFile.IsSubmodule -}}
+		{{ $blob = (.Submodule .CurrentFile) }}
+	{{- else -}}
+		{{ $blob = .Blob (.CurrentFile) }}
+	{{- end -}}
 
 	{{- $lines := (getLines $blob) -}}
 	{{- range $i, $line := $lines }}
 <a id="L{{ $i }}" href="#L{{ $i }}">{{ padNumber (len $lines) $i }}{{ $i }}</a>{{ . }}
 	{{- end }}
-{{- end -}}
 	</pre>
 </section>
