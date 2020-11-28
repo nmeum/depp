@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"sort"
 )
 
@@ -19,12 +20,7 @@ type RepoPage struct {
 	CurrentFile RepoFile
 }
 
-var readmeNames = []string{
-	"README",
-	"README.txt",
-	"README.markdown",
-	"README.md",
-}
+var readmeRegex = regexp.MustCompile("README|(README\\.[a-zA-Z0-9]+)")
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
 	var ret error
@@ -111,20 +107,34 @@ func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
 	return out, nil
 }
 
+func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
+	var result *git.TreeEntry
+	r.tree.Walk(func(root string, e *git.TreeEntry) int {
+		if root != "" {
+			return 1 /* Different directory */
+		}
+
+		if reg.MatchString(e.Name) {
+			result = e
+			return -1 /* Stop the walk */
+		}
+
+		return 0
+	})
+
+	return result
+}
+
 func (r *RepoPage) Readme() (string, error) {
-	for _, name := range readmeNames {
-		entry := r.tree.EntryByName(name)
-		if entry == nil {
-			continue
-		}
-
-		blob, err := r.git.LookupBlob(entry.Id)
-		if err != nil {
-			return "", err
-		}
-
-		return string(blob.Contents()), nil
+	entry := r.matchFile(readmeRegex)
+	if entry == nil {
+		return "", nil
 	}
 
-	return "", nil
+	blob, err := r.git.LookupBlob(entry.Id)
+	if err != nil {
+		return "", err
+	}
+
+	return string(blob.Contents()), nil
 }
