@@ -2,6 +2,11 @@
 	max-width: 50em;
 }
 
+{{/* README pre should only overflow on small devices */}}
+@media (max-width: 50em) {
+	#readme pre { overflow: auto; }
+}
+
 #readme pre {
 	padding: 5px;
 	margin: 5px 0px 5px 0px;
