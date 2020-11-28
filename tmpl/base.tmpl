@@ -31,9 +31,11 @@
 				{{ template "blob.tmpl" . }}
 			{{ end }}
 
-			{{- $readme := (renderReadme .) -}}
-			{{ if $readme }}
-				{{ template "readme.tmpl" $readme }}
+			{{ if .CurrentFile.IsDir }}
+				{{- $readme := (renderReadme .) -}}
+				{{ if $readme }}
+					{{ template "readme.tmpl" $readme }}
+				{{ end }}
 			{{ end }}
 		</main>
 	</body>
