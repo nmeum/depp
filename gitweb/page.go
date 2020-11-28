@@ -27,7 +27,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	var entries []RepoFile
 	r.tree.Walk(func(root string, e *git.TreeEntry) int {
 		if root != "" {
-			return 1 /* Skip passed entry */
+			return 1 // Skip passed entry
 		}
 
 		basepath := filepath.Base(r.CurrentFile.Path)
@@ -111,12 +111,12 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
 	var result *git.TreeEntry
 	r.tree.Walk(func(root string, e *git.TreeEntry) int {
 		if root != "" {
-			return 1 /* Different directory */
+			return 1 // Different directory
 		}
 
 		if reg.MatchString(e.Name) {
 			result = e
-			return -1 /* Stop the walk */
+			return -1 // Stop the walk
 		}
 
 		return 0
