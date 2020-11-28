@@ -19,6 +19,13 @@ type RepoPage struct {
 	CurrentFile RepoFile
 }
 
+var readmeNames = []string{
+	"README",
+	"README.txt",
+	"README.markdown",
+	"README.md",
+}
+
 func (r *RepoPage) Files() ([]RepoFile, error) {
 	var ret error
 	var entries []RepoFile
@@ -102,4 +109,22 @@ func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
 
 	out := fmt.Sprintf("%v @ %v", submodule.Url(), submodule.IndexId())
 	return out, nil
+}
+
+func (r *RepoPage) Readme() (string, error) {
+	for _, name := range readmeNames {
+		entry := r.tree.EntryByName(name)
+		if entry == nil {
+			continue
+		}
+
+		blob, err := r.git.LookupBlob(entry.Id)
+		if err != nil {
+			return "", err
+		}
+
+		return string(blob.Contents()), nil
+	}
+
+	return "", nil
 }

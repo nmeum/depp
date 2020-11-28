@@ -23,13 +23,6 @@ type Repo struct {
 // File name of the git description file.
 const descFn = "description"
 
-var readmeNames = []string{
-	"README",
-	"README.txt",
-	"README.markdown",
-	"README.md",
-}
-
 func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	var err error
 	r := &Repo{Path: fp}
@@ -122,38 +115,6 @@ func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
 	}
 
 	return page, nil
-}
-
-func (r *Repo) Readme() (string, error) {
-	head, err := r.git.Head()
-	if err != nil {
-		return "", err
-	}
-
-	commit, err := r.git.LookupCommit(head.Target())
-	if err != nil {
-		return "", err
-	}
-	tree, err := commit.Tree()
-	if err != nil {
-		return "", err
-	}
-
-	for _, name := range readmeNames {
-		entry := tree.EntryByName(name)
-		if entry == nil {
-			continue
-		}
-
-		blob, err := r.git.LookupBlob(entry.Id)
-		if err != nil {
-			return "", err
-		}
-
-		return string(blob.Contents()), nil
-	}
-
-	return "", nil
 }
 
 func (r *Repo) Description() (string, error) {
