@@ -114,7 +114,7 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
 			return 1 // Different directory
 		}
 
-		if reg.MatchString(e.Name) {
+		if e.Type == git.ObjectBlob && reg.MatchString(e.Name) {
 			result = e
 			return -1 // Stop the walk
 		}
