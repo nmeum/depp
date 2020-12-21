@@ -17,7 +17,7 @@ type Repo struct {
 
 	Path  string
 	Title string
-	URL   *url.URL
+	URL   string
 }
 
 // File name of the git description file.
@@ -33,7 +33,7 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	}
 
 	r.Title = filepath.Base(fp)
-	r.URL = gitServer
+	r.URL = gitServer.String()
 
 	r.numCommits = commits
 	return r, nil

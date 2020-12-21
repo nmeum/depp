@@ -14,7 +14,9 @@
 			{{ if .Description -}}
 				<p>{{ .Description }}</p>
 			{{- end }}
-			<pre>git clone <code>{{ .URL }}</code></pre>
+			{{ if .URL -}}
+				<pre>git clone <code>{{ .URL }}</code></pre>
+			{{- end }}
 		</header>
 
 		<main>
