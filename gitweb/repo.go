@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Repo represents information required per repository.
@@ -34,6 +35,11 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 
 	r.Title = filepath.Base(fp)
 	r.URL = gitServer.String()
+
+	ext := strings.LastIndex(r.Title, ".git")
+	if ext > 0 {
+		r.Title = r.Title[0:ext]
+	}
 
 	r.numCommits = commits
 	return r, nil
