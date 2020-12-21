@@ -18,7 +18,7 @@ var templates embed.FS
 
 var (
 	commits     = flag.Uint("c", 5, "amount of recent commits to include")
-	gitRawURL   = flag.String("g", "git://localhost", "base URL of Git clone server")
+	gitURL      = flag.String("u", "", "clone URL for the Git repository")
 	destination = flag.String("d", "./www", "output directory for HTML files")
 )
 
@@ -134,7 +134,7 @@ func main() {
 		usage()
 	}
 
-	gitURL, err := url.Parse(*gitRawURL)
+	gitURL, err := url.Parse(*gitURL)
 	if err != nil {
 		log.Fatal(err)
 	}

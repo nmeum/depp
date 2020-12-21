@@ -59,9 +59,9 @@ Afterwards, copy `./depp` to a directory in your `$PATH`.
 
 Assuming you have a web server serving files located at
 `/var/www/htdocs/git.example.org`, you want 10 commits on the index
-page, and `git-daemon(1)` is running on the same domain:
+page, and the repository can be cloned via `git://example.org/foo.git`:
 
-	$ ./depp -c 10 -g git://git.example.org \
+	$ ./depp -c 10 -u git://example.org/foo.git \
 		-d /var/www/htdocs/git.example.org \
 		<path to git repository to generate pages for>
 
