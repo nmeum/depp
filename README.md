@@ -86,7 +86,21 @@ markdown implementation:
 ## Caveats
 
 Existing HTML files are not tracked, thus generated HTML for files
-removed from the repository `HEAD` are not automatically removed.
+removed from the repository `HEAD` are not automatically removed from
+the depp destination directory. In order to be able to identify HTML
+files not touched by depp the `mtime` and `atime` of `index.html` is set
+to a time *before* the generation of any HTML files on each invocation.
+This allows removing generated HTML for files removed from the
+repository by invoking the following command from the depp destination
+directory:
+
+	$ find . -not -newer index.html -not -path ./index.html -type f \
+		-exec rm {} \+ 2>/dev/null
+
+The above `find(1)` invocation can conveniently be executed from a
+cronjob. Unfortunately, this command does not remove empty directories,
+these need to be handled separately (some `find(1)` implementations
+support `-empty` for this purpose).
 
 ## License
 
