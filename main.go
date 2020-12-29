@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/nmeum/depp/gitweb"
 )
@@ -125,11 +126,14 @@ func generate(repo *gitweb.Repo) error {
 }
 
 func main() {
-	log.SetFlags(log.Lshortfile)
+	// Time **before** start of file generation.
+	// Will later be used as the mtime/atime of `index.html`.
+	startTime := time.Now().Add(-1 * time.Second)
 
 	flag.Usage = usage
 	flag.Parse()
 
+	log.SetFlags(log.Lshortfile)
 	if flag.NArg() != 1 {
 		usage()
 	}
@@ -145,6 +149,13 @@ func main() {
 		log.Fatal(err)
 	}
 	err = generate(repo)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Reset mtime/atime of index.html to detect untouched files.
+	index := filepath.Join(*destination, "index.html")
+	err = os.Chtimes(index, startTime, startTime)
 	if err != nil {
 		log.Fatal(err)
 	}
