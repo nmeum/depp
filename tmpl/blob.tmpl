@@ -11,6 +11,7 @@
 
 	{{- $lines := (getLines $blob) -}}
 	{{- range $i, $line := $lines }}
+{{- $i = increment $i }}
 <a id="L{{ $i }}" href="#L{{ $i }}">{{ padNumber (len $lines) $i }}{{ $i }}</a>{{ . }}
 	{{- end }}
 	</pre>

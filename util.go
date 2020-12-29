@@ -61,6 +61,10 @@ func isIndexPage(page *gitweb.RepoPage) bool {
 	return page.CurrentFile.Path == ""
 }
 
+func increment(n int) int {
+	return n + 1
+}
+
 func decrement(n int) int {
 	return n - 1
 }

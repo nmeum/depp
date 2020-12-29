@@ -90,6 +90,7 @@ func buildHTML() (*template.Template, error) {
 
 	funcMap := make(template.FuncMap)
 	funcMap["getRelPath"] = getRelPath
+	funcMap["increment"] = increment
 	funcMap["decrement"] = decrement
 	funcMap["getLines"] = getLines
 	funcMap["padNumber"] = padNumber
