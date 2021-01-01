@@ -88,15 +88,16 @@ func buildHTML() (*template.Template, error) {
 	const name = "base.tmpl"
 	tmpl := template.New(name)
 
-	funcMap := make(template.FuncMap)
-	funcMap["getRelPath"] = getRelPath
-	funcMap["increment"] = increment
-	funcMap["decrement"] = decrement
-	funcMap["getLines"] = getLines
-	funcMap["padNumber"] = padNumber
-	funcMap["relIndex"] = relIndex
-	funcMap["isIndexPage"] = isIndexPage
-	funcMap["renderReadme"] = renderReadme
+	funcMap := template.FuncMap{
+		"getRelPath":   getRelPath,
+		"increment":    increment,
+		"decrement":    decrement,
+		"getLines":     getLines,
+		"padNumber":    padNumber,
+		"relIndex":     relIndex,
+		"isIndexPage":  isIndexPage,
+		"renderReadme": renderReadme,
+	}
 	tmpl = tmpl.Funcs(funcMap)
 
 	tmpl, err = tmpl.ParseFS(templates, "tmpl/*.tmpl")
