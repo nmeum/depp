@@ -1,3 +1,0 @@
-[submodule "vendor/github.com/libgit2/git2go"]
-	path = vendor/github.com/libgit2/git2go
-	url = https://github.com/libgit2/git2go

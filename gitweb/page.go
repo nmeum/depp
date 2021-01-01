@@ -1,7 +1,7 @@
 package gitweb
 
 import (
-	git "github.com/libgit2/git2go"
+	git "github.com/libgit2/git2go/v30"
 
 	"errors"
 	"fmt"

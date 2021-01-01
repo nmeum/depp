@@ -36,24 +36,11 @@ This software has the following dependencies:
 
 ## Installation
 
-This program can be installed using `go get`, if go itself is configured
-properly. If not, simply build using `go build -trimpath`. The two
-methods are described further below.
-
-### go get
-
-To install to the program using `go get` run the following command:
+This program can be installed using `go get`, it requires the go
+toolchain to be setup correctly and `$GOPATH` to be set. If go is
+configured correctly, simply run the following command:
 
 	$ go get github.com/nmeum/depp
-
-### go build
-
-To install the program without configuring a `$GOPATH`:
-
-	$ git clone --recursive git://github.com/nmeum/depp
-	$ cd depp && go build -trimpath
-
-Afterwards, copy `./depp` to a directory in your `$PATH`.
 
 ## Usage Example
 
