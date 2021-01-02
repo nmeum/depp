@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"html/template"
-	"strconv"
 	"strings"
 
 	"github.com/nmeum/depp/gitweb"
@@ -34,13 +33,22 @@ func getLines(input string) []string {
 }
 
 func padNumber(maxnum int, curnum int) template.HTML {
-	max := strconv.Itoa(maxnum)
-	cur := strconv.Itoa(curnum)
+	digitsReq := func(n int) int {
+		r := 1
+		for n/10 > 0 {
+			n /= 10
+			r++
+		}
+		return r
+	}
 
-	if len(cur) >= len(max) {
+	max := digitsReq(maxnum)
+	cur := digitsReq(curnum)
+
+	diff := max - cur
+	if diff == 0 {
 		return ""
 	}
-	diff := len(max) - len(cur)
 
 	buf := new(bytes.Buffer)
 	buf.Grow(diff)
