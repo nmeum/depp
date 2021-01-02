@@ -8,8 +8,6 @@ import (
 	"github.com/nmeum/depp/gitweb"
 )
 
-const nonBreakingSpace string = "&nbsp;"
-
 func getRelPath(n int) string {
 	var ret string
 	for i := 0; i < n; i++ {
@@ -33,6 +31,7 @@ func getLines(input string) []string {
 }
 
 func padNumber(maxnum int, curnum int) template.HTML {
+	const nonBreakingSpace string = "&nbsp;"
 	digitsReq := func(n int) int {
 		r := 1
 		for n/10 > 0 {
