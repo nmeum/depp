@@ -5,6 +5,7 @@ import (
 
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -128,7 +129,7 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
 func (r *RepoPage) Readme() (string, error) {
 	entry := r.matchFile(readmeRegex)
 	if entry == nil {
-		return "", nil
+		return "", os.ErrNotExist
 	}
 
 	blob, err := r.git.LookupBlob(entry.Id)

@@ -34,7 +34,9 @@ func runWithInput(cmd *exec.Cmd, input string) (string, error) {
 
 func renderReadme(repo *gitweb.RepoPage) (template.HTML, error) {
 	readme, err := repo.Readme()
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil
+	} else if err != nil {
 		return "", err
 	}
 
