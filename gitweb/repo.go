@@ -26,14 +26,14 @@ const descFn = "description"
 
 func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	var err error
-	r := &Repo{Path: fp}
 
-	r.git, err = git.OpenRepository(fp)
+	absFp, err := filepath.Abs(fp)
 	if err != nil {
 		return nil, err
 	}
+	r := &Repo{Path: absFp}
 
-	absFp, err := filepath.Abs(fp)
+	r.git, err = git.OpenRepository(absFp)
 	if err != nil {
 		return nil, err
 	}
