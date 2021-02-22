@@ -33,7 +33,12 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 		return nil, err
 	}
 
-	r.Title = filepath.Base(fp)
+	absFp, err := filepath.Abs(fp)
+	if err != nil {
+		return nil, err
+	}
+
+	r.Title = filepath.Base(absFp)
 	r.URL = gitServer.String()
 
 	ext := strings.LastIndex(r.Title, ".git")
