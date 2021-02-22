@@ -41,7 +41,7 @@ func renderReadme(repo *gitweb.RepoPage) (template.HTML, error) {
 	fp := filepath.Join(repo.Path, renderScript)
 	renderer, err := exec.LookPath(fp)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, exec.ErrNotFound) {
 			escaped := template.HTMLEscapeString(readme)
 			return template.HTML(`<pre class="raw">` + escaped + "</pre>"), nil
 		}
