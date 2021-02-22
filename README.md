@@ -35,11 +35,11 @@ This software has the following dependencies:
 
 ## Installation
 
-This program can be installed using `go get`, it requires the go
+This program can be installed using `go install`, it requires the go
 toolchain to be setup correctly and `$GOPATH` to be set. If go is
 configured correctly, simply run the following command:
 
-	$ go get github.com/nmeum/depp
+	$ go install github.com/nmeum/depp@latest
 
 ## Usage Example
 
