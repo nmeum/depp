@@ -23,8 +23,7 @@ repository and use `git(1)` as usual.
 
 ## Status
 
-Proof of concept, buggy and incomplete. Currently requires an unreleased
-version of the go compiler in order to embed template files into the binary.
+Proof of concept, buggy and incomplete.
 
 ## Dependencies
 
