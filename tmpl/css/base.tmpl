@@ -41,11 +41,8 @@ section, header {
 	padding: 10px 10px 10px 10px;
 }
 
-header {
+header, main section:not(:last-child) {
 	border-bottom: 3px solid var(--color-light-grey);
-}
-main section:not(:last-child) {
-	border-bottom: 3px solid var(--color-grey);
 }
 
 {{ template "commits.tmpl" }}
