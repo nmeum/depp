@@ -3,10 +3,16 @@ package main
 import (
 	"bytes"
 	"html/template"
+	"net/http"
 	"strings"
 
 	"github.com/nmeum/depp/gitweb"
 )
+
+func isBinary(data []byte) bool {
+	ct := http.DetectContentType(data)
+	return !strings.HasPrefix(ct, "text/")
+}
 
 func getRelPath(n int) string {
 	var ret string
