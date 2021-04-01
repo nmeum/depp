@@ -70,29 +70,29 @@ func (r *RepoPage) Commits() ([]*git.Commit, error) {
 
 }
 
-func (r *RepoPage) Blob(file *RepoFile) (string, error) {
+func (r *RepoPage) Blob(file *RepoFile) ([]byte, error) {
 	if file.Type != git.ObjectBlob {
-		return "", errors.New("given RepoFile is not a blob")
+		return []byte{}, errors.New("given RepoFile is not a blob")
 	}
 	fp := file.FilePath()
 
 	entry, err := r.tree.EntryByPath(fp)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
 	oid := entry.Id
 	blob, err := r.git.LookupBlob(oid)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
-	return string(blob.Contents()), nil
+	return blob.Contents(), nil
 }
 
-func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
+func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
 	if !file.IsSubmodule() {
-		return "", errors.New("given RepoFile is not a submodule")
+		return []byte{}, errors.New("given RepoFile is not a submodule")
 	}
 	fp := file.FilePath()
 
@@ -105,7 +105,7 @@ func (r *RepoPage) Submodule(file *RepoFile) (string, error) {
 	}
 
 	out := fmt.Sprintf("%v @ %v", submodule.Url(), submodule.IndexId())
-	return out, nil
+	return []byte(out), nil
 }
 
 func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {

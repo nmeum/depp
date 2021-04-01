@@ -21,7 +21,9 @@ func getRelPath(n int) string {
 	}
 }
 
-func getLines(input string) []string {
+func getLines(data []byte) []string {
+	input := string(data)
+
 	// Remove terminating newline (if any)
 	if input[len(input)-1] == '\n' {
 		input = input[0 : len(input)-1]
