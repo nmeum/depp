@@ -67,7 +67,7 @@ uses the `markdown(1)` program provided by the [discount][discount website]
 markdown implementation:
 
 	#!/bin/sh
-	exec markdown
+	exec markdown -f autolink
 
 ## Caveats
 
