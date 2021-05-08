@@ -28,6 +28,10 @@ func getRelPath(n int) string {
 }
 
 func getLines(data []byte) []string {
+	if len(data) == 0 {
+		return []string{""} // empty file
+	}
+
 	input := string(data)
 
 	// Remove terminating newline (if any)
