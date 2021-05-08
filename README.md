@@ -48,7 +48,7 @@ Assuming you have a web server serving files located at
 page, and the repository can be cloned via `git://example.org/foo.git`:
 
 	$ ./depp -c 10 -u git://example.org/foo.git \
-		-d /var/www/htdocs/git.example.org \
+		-d /var/www/htdocs/git.example.org/foo \
 		<path to git repository to generate pages for>
 
 To automate this process create a `post-receive` hook in your git
@@ -62,7 +62,7 @@ called `git-render-readme` in the bare Git repository. When executed,
 this file receives the README content on standard input and must write
 plain HTML to standard output.
 
-For example, consider the following `git-render-readme` script which
+As an example, consider the following `git-render-readme` script which
 uses the `markdown(1)` program provided by the [discount][discount website]
 markdown implementation:
 
@@ -71,8 +71,8 @@ markdown implementation:
 
 ## Caveats
 
-Existing HTML files are not tracked, thus generated HTML for files
-removed from the repository `HEAD` are not automatically removed from
+Existing HTML files are not tracked, thus the generated HTML for files
+removed from the repository `HEAD` is not automatically removed from
 the depp destination directory. In order to be able to identify HTML
 files not touched by depp the `mtime` and `atime` of `index.html` is set
 to a time *before* the generation of any HTML files on each invocation.
