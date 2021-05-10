@@ -51,6 +51,16 @@ The
 used to clone the repository.
 If provided, this information is displayed in the header of each generated HTML page.
 .El
+.Sh FILES
+The following special files in bare Git repositories are recognized:
+.Bl -tag -width Ds
+.It Pa git-description
+Contains a short description of the repository which is displayed in the header of each HTML file (if present).
+.It Pa git-render-readme
+Executable file which receives
+.Pa README
+files on standard input and should write HTML for these files to standard output.
+.El
 .Sh EXIT STATUS
 .Ex -std depp
 .Sh SEE ALSO
