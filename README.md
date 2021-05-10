@@ -41,6 +41,10 @@ configured correctly, simply run the following command:
 
 	$ go install github.com/nmeum/depp@latest
 
+To ease packaging, a `GNUmakfile` is also provided which is
+automatically installs the binary and the available documentation files
+to the appropriate locations.
+
 ## Usage Example
 
 Assuming you have a web server serving files located at
