@@ -1,0 +1,64 @@
+.Dd $Mdocdate: May 10 2020 $
+.Dt DEPP 1
+.Os
+.Sh NAME
+.Nm depp
+.Nd generate HTML files for a git repository
+.Sh SYNOPSIS
+.Nm depp
+.Op Fl c Ar commits
+.Op Fl d Ar destination
+.Op Fl u Ar URL
+.Ar repository
+.Sh DESCRIPTION
+For the given
+.Xr git 1
+.Ar repository
+.Nm
+generates static HTML files which provide a simple repository overview.
+This includes recent commits, a file tree, and (rendered) README files.
+In regards to the file tree,
+.Nm
+only operates on the current repository head.
+.Pp
+This software is most commonly invoked from a
+.Pa post-receive
+hook registered on the Git server.
+Thereby causing generated HTML to be updated automatically.
+Refer to
+.Xr githooks 5
+for more information on these hooks.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl c Ar commits
+Amount of
+.Ar commits
+to include on the index page.
+For each commit the commit message, the author name, and the commit date are displayed.
+By default the last 5 commits are displayed.
+.It Fl d Ar destination
+The generated HTML file are written to the given
+.Ar destination
+directory.
+This directory is created if it does not exist yet.
+By default a
+.Pa www
+subdirectory is created and used in the current directory.
+.It Fl u Ar URL
+The
+.Ar URL
+used to clone the repository.
+If provided, this information is displayed in the header of each generated HTML page.
+.El
+.Sh EXIT STATUS
+.Ex -std depp
+.Sh SEE ALSO
+.Xr git 1 ,
+.Xr gitweb 1 ,
+.Xr githooks 5
+.Sh AUTHORS
+.An Sören Tempel Aq Mt soeren@soeren-tempel.net
+.Sh CAVEATS
+Existing HTML files are not tracked by this utility.
+If a file is removed from the repository, it is not automatically removed from the .Ar destination directory.
