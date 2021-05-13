@@ -5,12 +5,12 @@ No frills static page generator for Git repositories.
 ## Motivation
 
 Dynamic git repository viewers like [cgit][cgit website] or
-[gitweb][gitweb website] inherit the generael disadvantages of dynamic
-web applications. For this reason, static page generators for git (e.g.
-[git-arr][git-arr website] or [stagit][stagit website]) emerged
-recently. However, these page generators are usual not compatible with
-large repository as they generate lots of HTML files (e.g. one for each
-commit).
+[gitweb][gitweb website] inherit the general disadvantages of dynamic
+web applications (resource consumption, security concern, …). For this
+reason, static page generators for git (e.g. [git-arr][git-arr website]
+or [stagit][stagit website]) emerged recently. However, these page
+generators are usual not compatible with large repository as they
+generate lots of HTML files (e.g. one for each commit).
 
 Contrary to existing static page generator approaches, this software
 does not strive to be a fully featured git browser for the web. Instead,
