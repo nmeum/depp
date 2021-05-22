@@ -21,10 +21,7 @@
 
 		<main>
 			{{ if (isIndexPage .) }}
-				{{- $commits := (.Commits) -}}
-				{{ if $commits }}
-					{{ template "commits.tmpl" $commits }}
-				{{ end }}
+				{{ template "commits.tmpl" . }}
 			{{ end }}
 
 			{{ if .CurrentFile.IsDir }}

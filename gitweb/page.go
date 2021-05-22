@@ -50,6 +50,16 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	return entries, nil
 }
 
+func (r *RepoPage) TotalCommits() uint {
+	var total uint
+
+	for c := r.commit; c != nil; c = c.Parent(0) {
+		total++
+	}
+
+	return total
+}
+
 func (r *RepoPage) Commits() ([]*git.Commit, error) {
 	var i uint
 
@@ -67,7 +77,6 @@ func (r *RepoPage) Commits() ([]*git.Commit, error) {
 
 	commits = commits[0:i] // Shrink to appropriate size
 	return commits, nil
-
 }
 
 func (r *RepoPage) Blob(file *RepoFile) ([]byte, error) {
