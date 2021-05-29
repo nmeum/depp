@@ -61,16 +61,14 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		return err
 	}
 
+	// . is not included by tree.Walk()
+	err = fn(indexPage)
+	if err != nil {
+		return err
+	}
+
 	var ret error
 	indexPage.tree.Walk(func(root string, e *git.TreeEntry) int {
-		if root == "" {
-			err = fn(indexPage)
-			if err != nil {
-				ret = err
-				return -1
-			}
-		}
-
 		fp := filepath.Join(root, e.Name)
 		page, err := r.Page(head, fp)
 		if err != nil {
