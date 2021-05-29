@@ -5,6 +5,9 @@ pre.blob {
 pre.blob a {
 	color: var(--color-grey);
 	padding-right: 1ch;
+
+	{{/* Ensure background is not overwritten on :target */}}
+	background-color: var(--color-white) !important;
 }
 
 pre.blob a:hover {
