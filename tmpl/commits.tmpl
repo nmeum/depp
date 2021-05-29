@@ -2,7 +2,7 @@
 	<h2>commits</h2>
 	<table class="commits">
 		<tbody>
-			{{ range (.Commits) }}
+			{{ range .Commits }}
 				<tr>
 					<td class="date">{{ .Author.When.Format "2006-02-01"}}</td>
 					<td class="description">{{ .Summary }}</td>
@@ -12,5 +12,5 @@
 		</tbody>
 	</table>
 
-	<p>Clone the repository to access all {{ .TotalCommits }} commits.</p>
+	<p>Clone the repository to access all {{ .Total }} commits.</p>
 </section>

@@ -21,6 +21,11 @@ type RepoPage struct {
 	CurrentFile RepoFile
 }
 
+type CommitInfo struct {
+	Commits []*git.Commit
+	Total   uint
+}
+
 var readmeRegex = regexp.MustCompile("README|(README\\.[a-zA-Z0-9]+)")
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
@@ -50,33 +55,34 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	return entries, nil
 }
 
-func (r *RepoPage) TotalCommits() uint {
-	var total uint
+func (r *RepoPage) Commits() (*CommitInfo, error) {
+	var oid git.Oid
+	var total, numCommits uint
 
-	for c := r.commit; c != nil; c = c.Parent(0) {
+	walker, err := r.git.Walk()
+	if err != nil {
+		return nil, err
+	}
+	defer walker.Free()
+	walker.Push(r.commit.AsObject().Id())
+
+	commits := make([]*git.Commit, r.numCommits)
+	for walker.Next(&oid) == nil {
+		commit, err := r.git.LookupCommit(&oid)
+		if err != nil {
+			return nil, err
+		}
+
+		if numCommits < r.numCommits {
+			commits[numCommits] = commit
+			numCommits++
+		}
+
 		total++
 	}
 
-	return total
-}
-
-func (r *RepoPage) Commits() ([]*git.Commit, error) {
-	var i uint
-
-	commit := r.commit
-	commits := make([]*git.Commit, r.numCommits)
-
-	for i = 0; i < r.numCommits; i++ {
-		if commit == nil {
-			break
-		}
-
-		commits[i] = commit
-		commit = commit.Parent(0)
-	}
-
-	commits = commits[0:i] // Shrink to appropriate size
-	return commits, nil
+	commits = commits[0:numCommits] // Shrink to appropriate size
+	return &CommitInfo{commits, total}, nil
 }
 
 func (r *RepoPage) Blob(file *RepoFile) ([]byte, error) {

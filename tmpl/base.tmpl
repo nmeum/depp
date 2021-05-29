@@ -25,7 +25,7 @@
 
 		<main>
 			{{ if (isIndexPage .) }}
-				{{ template "commits.tmpl" . }}
+				{{ template "commits.tmpl" (.Commits) }}
 			{{ end }}
 
 			{{ if .CurrentFile.IsDir }}
