@@ -14,7 +14,7 @@ import (
 // Repo represents information required per repository.
 type Repo struct {
 	git        *git.Repository
-	numCommits uint
+	maxCommits uint
 
 	Path  string
 	Title string
@@ -46,7 +46,7 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 		r.Title = r.Title[0:ext]
 	}
 
-	r.numCommits = commits
+	r.maxCommits = commits
 	return r, nil
 }
 

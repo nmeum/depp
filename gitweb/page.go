@@ -66,14 +66,14 @@ func (r *RepoPage) Commits() (*CommitInfo, error) {
 	defer walker.Free()
 	walker.Push(r.commit.AsObject().Id())
 
-	commits := make([]*git.Commit, r.numCommits)
+	commits := make([]*git.Commit, r.maxCommits)
 	for walker.Next(&oid) == nil {
 		commit, err := r.git.LookupCommit(&oid)
 		if err != nil {
 			return nil, err
 		}
 
-		if numCommits < r.numCommits {
+		if numCommits < r.maxCommits {
 			commits[numCommits] = commit
 			numCommits++
 		}
