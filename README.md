@@ -23,7 +23,7 @@ repository and use `git(1)` as usual.
 
 ## Status
 
-Proof of concept, buggy and incomplete.
+Far from stable but certainly usable.
 
 ## Dependencies
 
