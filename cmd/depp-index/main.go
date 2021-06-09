@@ -25,7 +25,7 @@ type Repo struct {
 type Page struct {
 	Title  string
 	Desc   string
-	Readme string
+	Readme template.HTML
 	Repos  []Repo
 }
 
@@ -162,7 +162,7 @@ func main() {
 	page := Page{
 		Title:  *title,
 		Desc:   *desc,
-		Readme: string(readmeText),
+		Readme: template.HTML(readmeText),
 		Repos:  repos,
 	}
 
