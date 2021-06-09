@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/nmeum/depp/css"
 	"github.com/nmeum/depp/gitweb"
 )
 
@@ -59,29 +60,6 @@ func walkPages(page *gitweb.RepoPage) error {
 	return nil
 }
 
-func createCSS(path string) error {
-	const name = "base.tmpl"
-	stylesheet := template.New(name)
-
-	t, err := stylesheet.ParseFS(templates, "tmpl/css/*.tmpl")
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	err = t.Execute(file, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func buildHTML() (*template.Template, error) {
 	var err error
 
@@ -120,7 +98,7 @@ func generate(repo *gitweb.Repo) error {
 		return err
 	}
 
-	err = createCSS(filepath.Join(*destination, "style.css"))
+	err = css.Create(filepath.Join(*destination, "style.css"))
 	if err != nil {
 		return err
 	}
