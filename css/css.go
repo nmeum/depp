@@ -5,6 +5,9 @@ import (
 	"os"
 )
 
+//go:embed tmpl
+var templates embed.FS
+
 func Create(path string) error {
 	const name = "base.tmpl"
 	stylesheet := template.New(name)
