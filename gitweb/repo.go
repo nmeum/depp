@@ -4,7 +4,6 @@ import (
 	git "github.com/libgit2/git2go/v30"
 
 	"errors"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -129,7 +128,7 @@ func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
 func (r *Repo) Description() (string, error) {
 	fp := filepath.Join(r.Path, descFn)
 
-	desc, err := ioutil.ReadFile(fp)
+	desc, err := os.ReadFile(fp)
 	if errors.Is(err, os.ErrNotExist) {
 		return "", nil
 	} else if err != nil {
