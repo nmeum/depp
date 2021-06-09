@@ -106,8 +106,8 @@ func getDescription(fp string) (string, error) {
 }
 
 func getRepos(fps []string) ([]Repo, error) {
-	var repos []Repo
-	for _, fp := range fps {
+	repos := make([]Repo, len(fps))
+	for i, fp := range fps {
 		r, err := git.OpenRepository(fp)
 		if err != nil {
 			return []Repo{}, err
@@ -129,13 +129,11 @@ func getRepos(fps []string) ([]Repo, error) {
 		}
 
 		sig := commit.Committer()
-		repo := Repo{
+		repos[i] = Repo{
 			Name:     filepath.Base(fp),
 			Desc:     desc,
 			Modified: sig.When,
 		}
-
-		repos = append(repos, repo)
 	}
 
 	return repos, nil
