@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	git "github.com/libgit2/git2go/v30"
@@ -136,6 +137,7 @@ func getRepos(fps []string) ([]Repo, error) {
 		}
 	}
 
+	sort.Sort(byModified(repos))
 	return repos, nil
 }
 
