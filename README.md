@@ -39,7 +39,7 @@ This program can be installed using `go install`, it requires the go
 toolchain to be setup correctly and `$GOPATH` to be set. If go is
 configured correctly, simply run the following command:
 
-	$ go install github.com/nmeum/depp@latest
+	$ go install github.com/nmeum/depp/...@latest
 
 To ease packaging, a `GNUmakfile` is also provided which is
 automatically installs the binary and the available documentation files
