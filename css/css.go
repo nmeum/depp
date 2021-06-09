@@ -1,6 +1,7 @@
 package css
 
 import (
+	"embed"
 	"html/template"
 	"os"
 )
