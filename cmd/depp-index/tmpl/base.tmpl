@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+
+		<title>{{ .Title }}</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<header>
+			<h1>{{ .Title }}</h1>
+			{{ if .Desc -}}
+				<p>{{ .Desc }}</p>
+			{{- end }}
+		</header>
+
+		<main>
+			{{ template "repos.tmpl" .Repos }}
+			{{ if .Readme -}}
+				<section id="readme">
+				<h2>Readme</h2>
+				</section>
+			{{- end }}
+		</main>
+	</body>
+</html>
