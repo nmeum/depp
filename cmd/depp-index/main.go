@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -26,7 +25,6 @@ type Repo struct {
 type Page struct {
 	Title  string
 	Desc   string
-	Readme template.HTML
 	Repos  []Repo
 }
 
@@ -35,7 +33,6 @@ var templates embed.FS
 
 var (
 	desc   = flag.String("s", "", "short description of git host")
-	readme = flag.String("r", "", "readme file in HTML markup")
 	title  = flag.String("t", "depp-index", "page title")
 	dest   = flag.String("d", "./www", "output directory for HTML files")
 )
@@ -70,26 +67,6 @@ func createHTML(page Page, path string) error {
 	}
 
 	return nil
-}
-
-func getReadme(opt string) (string, error) {
-	if len(opt) == 0 {
-		return "", nil
-	}
-
-	var err error
-	var readmeData []byte
-	if opt == "-" {
-		readmeData, err = io.ReadAll(os.Stdin)
-	} else {
-		readmeData, err = os.ReadFile(*readme)
-	}
-
-	if err != nil {
-		return "", err
-	} else {
-		return string(readmeData), nil
-	}
 }
 
 func getDescription(fp string) (string, error) {
@@ -150,10 +127,6 @@ func main() {
 		usage()
 	}
 
-	readmeText, err := getReadme(*readme)
-	if err != nil {
-		log.Fatal(err)
-	}
 	repos, err := getRepos(flag.Args())
 	if err != nil {
 		log.Fatal(err)
@@ -162,7 +135,6 @@ func main() {
 	page := Page{
 		Title:  *title,
 		Desc:   *desc,
-		Readme: template.HTML(readmeText),
 		Repos:  repos,
 	}
 

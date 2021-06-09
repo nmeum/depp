@@ -17,11 +17,6 @@
 
 		<main>
 			{{ template "repos.tmpl" .Repos }}
-			{{ if .Readme -}}
-				<section id="readme">
-				{{ .Readme }}
-				</section>
-			{{- end }}
 		</main>
 	</body>
 </html>
