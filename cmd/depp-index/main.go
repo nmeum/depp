@@ -4,6 +4,7 @@ import (
 	"embed"
 	"errors"
 	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -37,6 +38,15 @@ var (
 	title  = flag.String("t", "depp-index", "page title")
 	dest   = flag.String("d", "./www", "output directory for HTML files")
 )
+
+func usage() {
+	fmt.Fprintf(flag.CommandLine.Output(),
+		"USAGE: %s [FLAGS] REPOSITORY...\n\n"+
+			"The following flags are supported:\n\n", os.Args[0])
+
+	flag.PrintDefaults()
+	os.Exit(2)
+}
 
 func createHTML(page Page, path string) error {
 	const name = "base.tmpl"
@@ -132,11 +142,12 @@ func getRepos(fps []string) ([]Repo, error) {
 }
 
 func main() {
-	log.SetFlags(log.Lshortfile)
-
+	flag.Usage = usage
 	flag.Parse()
-	if flag.NArg() != 1 {
-		os.Exit(1)
+
+	log.SetFlags(log.Lshortfile)
+	if flag.NArg() == 0 {
+		usage()
 	}
 
 	readmeText, err := getReadme(*readme)
