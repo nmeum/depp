@@ -152,5 +152,6 @@ func (r *Repo) Description() (string, error) {
 		return "", err
 	}
 
-	return string(desc), nil
+	descText := string(desc)
+	return strings.TrimSpace(descText), nil
 }
