@@ -17,6 +17,7 @@ import (
 
 type Repo struct {
 	Name     string
+	Title    string
 	Desc     string
 	Modified time.Time
 }
@@ -87,7 +88,8 @@ func getRepos(fps []string) ([]Repo, error) {
 
 		sig := commit.Committer()
 		repos[i] = Repo{
-			Name:     r.Title,
+			Name:     filepath.Base(fp),
+			Title:    r.Title,
 			Desc:     desc,
 			Modified: sig.When,
 		}
