@@ -1,0 +1,47 @@
+.Dd $Mdocdate: June 10 2020 $
+.Dt DEPP-INDEX 1
+.Os
+.Sh NAME
+.Nm depp-index
+.Nd generate an index page for Git web viewers
+.Sh SYNOPSIS
+.Nm depp-index
+.Op Fl d Ar destination
+.Op Fl s Ar description
+.Op Fl t Ar title
+.Ar repository ...
+.Sh DESCRIPTION
+For the given
+.Ar repostories
+.Nm
+generates an index page listing all of them.
+The listing includes a short description of each repository, the time it was last updated, and a link to a repo page potentially generated using
+.Xr depp 1 .
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl d Ar destination
+The generated HTML and CSS files are written to the given
+.Ar destination
+directory.
+This directory is created if it does not exist yet.
+By default a
+.Pa www
+subdirectory is created and used in the current directory.
+.It Fl s Ar description
+The header of the generated HTML optionally contains a short
+.Ar description
+of the page.
+By default, no description is included.
+.It Fl t Ar title
+This argument specifies the
+.Ar title
+of the generated index page.
+.El
+.Sh EXIT STATUS
+.Ex -std depp-index
+.Sh SEE ALSO
+.Xr git 1 ,
+.Xr depp 1
+.Sh AUTHORS
+.An Sören Tempel Aq Mt soeren@soeren-tempel.net
