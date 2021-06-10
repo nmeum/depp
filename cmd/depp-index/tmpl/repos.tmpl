@@ -3,7 +3,7 @@
 	<dl>
 		{{ range . }}
 			<dt><a href="{{ .Name }}">{{ .Title }}</a> <emph>{{ (.Modified.Format "Jan 2, 2006") }}</emph></dt>
-			<dd>{{ .Desc }}</dt>
+			<dd>{{ .Desc }}</dd>
 		{{ end }}
 	</dl>
 </section>
