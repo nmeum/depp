@@ -138,6 +138,11 @@ func main() {
 		Repos:  repos,
 	}
 
+	err = os.MkdirAll(*dest, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = css.Create(filepath.Join(*dest, "style.css"))
 	if err != nil {
 		log.Fatal(err)
