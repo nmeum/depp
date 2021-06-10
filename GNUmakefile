@@ -1,16 +1,18 @@
-NAME = depp
-
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man
-DOCDIR ?= $(PREFIX)/share/doc/$(NAME)
+DOCDIR ?= $(PREFIX)/share/doc/depp
 
-$(NAME):
-	go build -trimpath -o $@
+all: depp depp-index
+depp:
+	go build -trimpath -o $@ ./cmd/depp
+depp-index:
+	go build -trimpath -o $@ ./cmd/depp-index
 
-install: $(NAME) $(NAME).1 README.md
-	install -Dm755 $(NAME) "$(DESTDIR)$(BINDIR)/$(NAME)"
-	install -Dm644 $(NAME).1 "$(DESTDIR)$(MANDIR)/man1/$(NAME).1"
+install: depp depp-index depp.1 README.md
+	install -Dm755 depp "$(DESTDIR)$(BINDIR)/depp"
+	install -Dm755 depp "$(DESTDIR)$(BINDIR)/depp-index"
+	install -Dm644 depp.1 "$(DESTDIR)$(MANDIR)/man1/depp.1"
 	install -Dm644 README.md "$(DESTDIR)$(DOCDIR)/README.md"
 
-.PHONY: $(NAME) install
+.PHONY: all depp depp-index install
