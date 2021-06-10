@@ -38,7 +38,9 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 	}
 
 	r.Title = filepath.Base(absFp)
-	r.URL = gitServer.String()
+	if gitServer != nil {
+		r.URL = gitServer.String()
+	}
 
 	ext := strings.LastIndex(r.Title, ".git")
 	if ext > 0 {
@@ -47,6 +49,21 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 
 	r.maxCommits = commits
 	return r, nil
+}
+
+func (r *Repo) Tip() (*git.Commit, error) {
+	head, err := r.git.Head()
+	if err != nil {
+		return nil, err
+	}
+
+	oid := head.Target()
+	commit, err := r.git.LookupCommit(oid)
+	if err != nil {
+		return nil, err
+	}
+
+	return commit, nil
 }
 
 func (r *Repo) Walk(fn func(*RepoPage) error) error {

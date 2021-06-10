@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -12,29 +11,30 @@ import (
 	"sort"
 	"time"
 
-	git "github.com/libgit2/git2go/v30"
 	"github.com/nmeum/depp/css"
+	"github.com/nmeum/depp/gitweb"
 )
 
 type Repo struct {
 	Name     string
+	Title    string
 	Desc     string
 	Modified time.Time
 }
 
 type Page struct {
-	Title  string
-	Desc   string
-	Repos  []Repo
+	Title string
+	Desc  string
+	Repos []Repo
 }
 
 //go:embed tmpl
 var templates embed.FS
 
 var (
-	desc   = flag.String("s", "", "short description of git host")
-	title  = flag.String("t", "depp-index", "page title")
-	dest   = flag.String("d", "./www", "output directory for HTML files")
+	desc  = flag.String("s", "", "short description of git host")
+	title = flag.String("t", "depp-index", "page title")
+	dest  = flag.String("d", "./www", "output directory for HTML files")
 )
 
 func usage() {
@@ -69,39 +69,19 @@ func createHTML(page Page, path string) error {
 	return nil
 }
 
-func getDescription(fp string) (string, error) {
-	// XXX: Code duplication with ./gitweb/repo.go
-	descFp := filepath.Join(fp, "description")
-
-	desc, err := os.ReadFile(descFp)
-	if errors.Is(err, os.ErrNotExist) {
-		return "", nil
-	} else if err != nil {
-		return "", err
-	}
-
-	return string(desc), nil
-}
-
 func getRepos(fps []string) ([]Repo, error) {
 	repos := make([]Repo, len(fps))
 	for i, fp := range fps {
-		r, err := git.OpenRepository(fp)
+		r, err := gitweb.NewRepo(fp, nil, 0)
 		if err != nil {
 			return []Repo{}, err
 		}
 
-		head, err := r.Head()
+		commit, err := r.Tip()
 		if err != nil {
 			return []Repo{}, err
 		}
-
-		oid := head.Target()
-		commit, err := r.LookupCommit(oid)
-		if err != nil {
-			return []Repo{}, err
-		}
-		desc, err := getDescription(fp)
+		desc, err := r.Description()
 		if err != nil {
 			return []Repo{}, err
 		}
@@ -109,6 +89,7 @@ func getRepos(fps []string) ([]Repo, error) {
 		sig := commit.Committer()
 		repos[i] = Repo{
 			Name:     filepath.Base(fp),
+			Title:    r.Title,
 			Desc:     desc,
 			Modified: sig.When,
 		}
@@ -133,9 +114,9 @@ func main() {
 	}
 
 	page := Page{
-		Title:  *title,
-		Desc:   *desc,
-		Repos:  repos,
+		Title: *title,
+		Desc:  *desc,
+		Repos: repos,
 	}
 
 	err = os.MkdirAll(*dest, 0755)

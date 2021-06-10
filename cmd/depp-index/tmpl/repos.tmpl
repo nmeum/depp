@@ -2,7 +2,7 @@
 	<h2>repositories</h2>
 	<dl>
 		{{ range . }}
-			<dt><a href="{{ .Name }}">{{ .Name }}</a> <emph>{{ (.Modified.Format "Jan 2, 2006") }}</emph></dt>
+			<dt><a href="{{ .Name }}">{{ .Title }}</a> <emph>{{ (.Modified.Format "Jan 2, 2006") }}</emph></dt>
 			<dd>{{ .Desc }}</dt>
 		{{ end }}
 	</dl>
