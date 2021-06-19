@@ -14,10 +14,11 @@
 For the given
 .Ar repostories
 .Nm
-generates an index page listing all of them.
-The listing includes a short description of each repository, the time it was last updated, and a link to a repo page potentially generated using
+generates an HTML index page listing all of them.
+The listing includes a short description of each repository, the time it was last modified, and a link to a repository page which provides more information.
+Repositories are sorted in descending order by their modification time.
+Referenced repository pages must be generated separately, for instance using
 .Xr depp 1 .
-Repositories on the index page are sorted by descending by their last modification.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
