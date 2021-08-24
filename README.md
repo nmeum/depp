@@ -23,7 +23,8 @@ repository and use `git(1)` as usual.
 
 ## Status
 
-Far from stable but certainly usable.
+I use this for my own Git server, it presently doesn't have any known
+bugs and the currently implemented feature set works quite well.
 
 ## Dependencies
 
