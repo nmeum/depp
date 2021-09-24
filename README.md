@@ -46,6 +46,12 @@ To ease packaging, a `GNUmakfile` is also provided which is
 automatically installs the binary and the available documentation files
 to the appropriate locations.
 
+In either case, two binaries will be installed: `depp` for generating
+HTML files on a per-repository basis and `depp-index` which can
+optionally be used to generate an HTML index page for listing all hosted
+git repositories. Both commands are further described in the provided
+man page, a usage example is provided below.
+
 ## Usage
 
 Assuming you have a web server serving files located at
