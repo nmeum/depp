@@ -46,7 +46,7 @@ To ease packaging, a `GNUmakfile` is also provided which is
 automatically installs the binary and the available documentation files
 to the appropriate locations.
 
-## Usage Example
+## Usage
 
 Assuming you have a web server serving files located at
 `/var/www/htdocs/git.example.org`, you want 10 commits on the index
@@ -56,8 +56,33 @@ page, and the repository can be cloned via `git://example.org/foo.git`:
 		-d /var/www/htdocs/git.example.org/foo \
 		<path to git repository to generate pages for>
 
-To automate this process create a `post-receive` hook in your git
-repository, see `githooks(5)` for more information on this topic.
+To automate this process create a `post-receive` hook for your
+repository on your git server, see `githooks(5)` for more information.
+Keep in mind that the repository page itself only needs to be regenerate
+if the default branch is pushed, since only the default branch is
+considered by `depp`. As such, an exemplary `post-receive` hook may look
+as follows:
+
+	#!/bin/sh
+	
+	repo=$(git rev-parse --absolute-git-dir)
+	name=${repo##*/}
+	
+	rebuild=0
+	defref=$(git symbolic-ref HEAD)
+	while read local_ref local_sha remote_ref remote_sha; do
+		[ "${remote_ref}" = "${defref}" ] && \
+			rebuild=1
+	done
+	
+	# Only rebuild if a ref for the default ref was pushed
+	[ ${rebuild} -eq 1 ] || exit 0
+	
+	depp -u "git://git.example.org/${name}" \
+		-d "/var/www/htdocs/git.example.org/${name}" .
+
+If usage of `deep-index` is also desired the index page can either be
+also rebuild as part of the `post-receive` hook or in a separate cronjob.
 
 ## README Rendering
 
