@@ -58,7 +58,7 @@ Assuming you have a web server serving files located at
 `/var/www/htdocs/git.example.org`, you want 10 commits on the index
 page, and the repository can be cloned via `git://example.org/foo.git`:
 
-	$ ./depp -c 10 -u git://example.org/foo.git \
+	$ depp -c 10 -u git://example.org/foo.git \
 		-d /var/www/htdocs/git.example.org/foo \
 		<path to git repository to generate pages for>
 
