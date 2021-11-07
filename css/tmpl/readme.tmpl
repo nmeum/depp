@@ -5,8 +5,8 @@
 }
 
 @media (max-width: 50em) {
-	{{/* README pre should only overflow on smaller devices */}}
-	#readme pre { overflow: auto; }
+	{{/* Raw READMEs should not overflow on smaller devices */}}
+	#readme pre.raw { overflow: auto !important; }
 
 	{{/* Resize images on smaller devices */}}
 	#readme img {
@@ -17,8 +17,15 @@
 	}
 }
 
+#readme pre.raw {
+	padding: 0px;
+	margin: 0px;
+	overflow: visible;
+}
+
 #readme pre {
 	margin: 1em 0em 1em 0em;
+	overflow: auto;
 }
 
 #readme pre code {
@@ -34,11 +41,6 @@
 	line-height: normal;
 	border-radius: 5px;
 	background: var(--color-athens-grey);
-}
-
-#readme pre.raw {
-	padding: 0px;
-	margin: 0px;
 }
 
 #readme p {
