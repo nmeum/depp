@@ -38,6 +38,10 @@ header p {
 }
 header pre {
 	color: var(--color-grey);
+
+	{{/* TODO: Better way to deal with overflow in clone URL */}}
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 header code {
 	text-decoration: underline;
