@@ -1,6 +1,10 @@
-{{/* Hide commit table on small mobile displays */}}
+{{/* Display TDs below each other on small devices */}}
 @media (max-width: 700px) {
-	#commits { display: none !important; }
+	table td { display: table; }
+	table tr {
+		display: block;
+		margin: 10px 0px 10px 0px;
+	}
 }
 
 table {
