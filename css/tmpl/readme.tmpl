@@ -1,10 +1,13 @@
+{{/* Maximum width of #readme section */}}
+{{ $readme_max_width:="50em" }}
+
 #readme {
-	max-width: 50em;
+	max-width: {{ $readme_max_width }};
 	line-height: 1.5;
 	text-align: justify;
 }
 
-@media (max-width: 50em) {
+@media (max-width: {{ $readme_max_width }}) {
 	{{/* Raw READMEs should not overflow on smaller devices */}}
 	#readme pre.raw { overflow: auto !important; }
 }
