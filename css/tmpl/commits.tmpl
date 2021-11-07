@@ -1,23 +1,29 @@
-{{/* Hide commit table on small mobile displays */}}
-@media (max-width: 700px) {
-	#commits { display: none !important; }
+{{/* Display TDs below each other on small devices */}}
+@media (max-width: 60em) {
+	table td {
+		display: table;
+		padding: 0px !important; {{/* overwrite td.description */}}
+	}
+
+	table tr {
+		display: block;
+		margin: 10px 0px 10px 0px;
+	}
 }
 
 table {
 	text-align: left;
+	max-width: 60em;
+	width: 100%;
 }
 
-table td {
+table td.description {
 	padding: 0.15em 0.5em;
 }
 
 table.commits td.date {
 	font-style: italic;
 	color: var(--color-grey);
-}
-
-table.commits td.description {
-	min-width: 32em;
 }
 
 table.commits td.author {
