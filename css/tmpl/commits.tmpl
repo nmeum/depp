@@ -13,15 +13,17 @@ table {
 
 table td {
 	padding: 0.15em 0.5em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	display: block;
+	max-width: 10em;
 }
 
 table.commits td.date {
 	font-style: italic;
 	color: var(--color-grey);
-}
-
-table.commits td.description {
-	min-width: 32em;
 }
 
 table.commits td.author {
