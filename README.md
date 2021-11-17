@@ -77,8 +77,10 @@ as follows:
 	rebuild=0
 	defref=$(git symbolic-ref HEAD)
 	while read local_ref local_sha remote_ref remote_sha; do
-		[ "${remote_ref}" = "${defref}" ] && \
+		if [ "${remote_ref}" = "${defref}" ]; then
 			rebuild=1
+			break
+		fi
 	done
 	
 	# Only rebuild if a ref for the default ref was pushed
