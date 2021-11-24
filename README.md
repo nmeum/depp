@@ -31,7 +31,7 @@ bugs and the currently implemented feature set works quite well.
 This software has the following dependencies:
 
 * [libgit2][libgit2 website]
-* [go][go website] >= 1.16.0 (`embed` package needed)
+* [Go][go website] >= 1.16.0 (`embed` package needed)
 * C compiler, pkg-config, … for linking against libgit2
 
 ## Installation
