@@ -9,17 +9,17 @@ Dynamic git repository viewers like [cgit][cgit website] or
 web applications (resource consumption, security concern, …). For this
 reason, static page generators for git (e.g. [git-arr][git-arr website]
 or [stagit][stagit website]) emerged recently. However, these page
-generators are usual not compatible with large repository as they
+generators are usually not compatible with large repository as they
 generate lots of HTML files (e.g. one for each commit).
 
 Contrary to existing static page generator approaches, this software
 does not strive to be a fully featured git browser for the web. Instead,
 the idea is to provide a quick overview for a given repository, thereby
-allowing a users to decide whether or not it is interesting enough to be
-cloned. As such, this software does intentionally not provide a web
-frontend for existing tools like `git-log(1)`, `git-blame(1)`, et
-cetera. If more information is needed the user should simply clone the
-repository and use `git(1)` as usual.
+allowing users to decide whether it is interesting enough to be cloned.
+As such, this software does intentionally not provide a web frontend for
+existing tools like `git-log(1)`, `git-blame(1)`, et cetera. If more
+information is needed, the user should simply clone the repository and
+use `git(1)` as usual.
 
 ## Status
 
@@ -42,9 +42,9 @@ configured correctly, simply run the following command:
 
 	$ go install github.com/nmeum/depp/...@latest
 
-To ease packaging, a `GNUmakfile` is also provided which is
-automatically installs the binary and the available documentation files
-to the appropriate locations.
+To ease packaging, a `GNUmakfile` is also provided which automatically
+installs the binary and the available documentation files to the
+appropriate locations.
 
 In either case, two binaries will be installed: `depp` for generating
 HTML files on a per-repository basis and `depp-index` which can
@@ -62,9 +62,9 @@ page, and the repository can be cloned via `git://example.org/foo.git`:
 		-d /var/www/htdocs/git.example.org/foo \
 		<path to git repository to generate pages for>
 
-To automate this process create a `post-receive` hook for your
+To automate this process, create a `post-receive` hook for your
 repository on your git server, see `githooks(5)` for more information.
-Keep in mind that the repository page itself only needs to be regenerate
+Keep in mind that the repository page itself only needs to be regenerated
 if the default branch is pushed, since only the default branch is
 considered by `depp`. As such, an exemplary `post-receive` hook may look
 as follows:
@@ -89,8 +89,8 @@ as follows:
 	depp -u "git://git.example.org/${name}" \
 		-d "/var/www/htdocs/git.example.org/${name}" .
 
-If usage of `deep-index` is also desired the index page can either be
-also rebuild as part of the `post-receive` hook or in a separate cronjob.
+If usage of `deep-index` is also desired, the index page can either be
+rebuild as part of the `post-receive` hook or in a separate cronjob.
 
 ## README Rendering
 
@@ -102,7 +102,7 @@ plain HTML to standard output.
 
 As an example, consider the following `git-render-readme` script which
 uses the `markdown(1)` program provided by the [discount][discount website]
-markdown implementation:
+Markdown implementation:
 
 	#!/bin/sh
 	exec markdown -f autolink
