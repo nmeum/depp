@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	git "github.com/libgit2/git2go/v30"
+	git "github.com/libgit2/git2go/v34"
 )
 
 // RepoFile represents information for a single file/blob.

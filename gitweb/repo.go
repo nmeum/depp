@@ -1,7 +1,7 @@
 package gitweb
 
 import (
-	git "github.com/libgit2/git2go/v30"
+	git "github.com/libgit2/git2go/v34"
 
 	"errors"
 	"net/url"
@@ -83,25 +83,20 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		return err
 	}
 
-	var ret error
-	indexPage.tree.Walk(func(root string, e *git.TreeEntry) int {
+	return indexPage.tree.Walk(func(root string, e *git.TreeEntry) error {
 		fp := filepath.Join(root, e.Name)
 		page, err := r.Page(head, fp)
 		if err != nil {
-			ret = err
-			return -1
+			return err
 		}
 
-		ret = fn(page)
+		err = fn(page)
 		if err != nil {
-			ret = err
-			return -1
+			return err
 		}
 
-		return 0
+		return nil
 	})
-
-	return ret
 }
 
 func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {

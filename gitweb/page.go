@@ -1,7 +1,7 @@
 package gitweb
 
 import (
-	git "github.com/libgit2/git2go/v30"
+	git "github.com/libgit2/git2go/v34"
 
 	"errors"
 	"fmt"
@@ -29,11 +29,10 @@ type CommitInfo struct {
 var readmeRegex = regexp.MustCompile("README|(README\\.[a-zA-Z0-9]+)")
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
-	var ret error
 	var entries []RepoFile
-	r.tree.Walk(func(root string, e *git.TreeEntry) int {
+	err := r.tree.Walk(func(root string, e *git.TreeEntry) error {
 		if root != "" {
-			return 1 // Skip passed entry
+			return git.TreeWalkSkip // Skip passed entry
 		}
 
 		basepath := filepath.Base(r.CurrentFile.Path)
@@ -45,10 +44,10 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		}
 
 		entries = append(entries, file)
-		return 0
+		return nil
 	})
-	if ret != nil {
-		return nil, ret
+	if err != nil {
+		return nil, err
 	}
 
 	sort.Sort(byType(entries))
@@ -125,17 +124,17 @@ func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
 
 func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
 	var result *git.TreeEntry
-	r.tree.Walk(func(root string, e *git.TreeEntry) int {
+	r.tree.Walk(func(root string, e *git.TreeEntry) error {
 		if root != "" {
-			return 1 // Different directory
+			return git.TreeWalkSkip // Different directory
 		}
 
 		if e.Type == git.ObjectBlob && reg.MatchString(e.Name) {
 			result = e
-			return -1 // Stop the walk
+			return errors.New("found match") // Stop the walk
 		}
 
-		return 0
+		return nil
 	})
 
 	return result
