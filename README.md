@@ -6,7 +6,7 @@ No frills static page generator for Git repositories.
 
 Dynamic git repository viewers like [cgit][cgit website] or
 [gitweb][gitweb website] inherit the general disadvantages of dynamic
-web applications (resource consumption, security concern, …). For this
+web applications (resource consumption, security concerns, …). For this
 reason, static page generators for git (e.g. [git-arr][git-arr website]
 or [stagit][stagit website]) emerged recently. However, these page
 generators are usually not compatible with large repository as they
