@@ -4,13 +4,40 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
-
 		{{ if (isIndexPage .) }}
 			<title>{{ .Title }}{{ if .Description }} - {{ .Description }}{{ end }}</title>
 		{{ else }}
 			<title>{{ .Title }} - {{ .CurrentFile.Name }}</title>
 		{{ end }}
+
 		<link rel="stylesheet" href="{{ $base }}style.css">
+		<script>
+			function highlight() {
+				Array.from(document.getElementsByClassName('highlighted'))
+					.forEach((e) => { e.className = '' })
+
+				const pattern = /^#L([0-9]+)-L?([0-9]+)$/
+				const matches = window.location.hash.match(pattern)
+				if (!matches || matches.length != 3)
+					return
+
+				const start = parseInt(matches[1], 10)
+				const end   = parseInt(matches[2], 10)
+				if (start > end || start <= 0)
+					return
+
+				var line
+				for (let i = end; i >= start; i--) {
+					line = document.getElementById('L' + i)
+					if (line == null)
+						return
+					line.className = 'highlighted'
+				}
+				line.scrollIntoView();
+			}
+			window.addEventListener('hashchange', highlight)
+			window.addEventListener('DOMContentLoaded', (event) => highlight())
+		</script>
 	</head>
 	<body>
 		<header>
