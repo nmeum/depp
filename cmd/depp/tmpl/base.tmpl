@@ -14,7 +14,7 @@
 		<script>
 			function highlight() {
 				Array.from(document.getElementsByClassName('highlighted'))
-					.forEach((e) => { e.className = '' })
+					.forEach((e) => { e.classList.remove('highlighted') })
 
 				const pattern = /^#L([0-9]+)-L?([0-9]+)$/
 				const matches = window.location.hash.match(pattern)
@@ -31,7 +31,7 @@
 					line = document.getElementById('L' + i)
 					if (line == null)
 						return
-					line.className = 'highlighted'
+					line.classList.add('highlighted')
 				}
 				line.scrollIntoView();
 			}
