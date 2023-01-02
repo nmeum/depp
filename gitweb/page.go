@@ -26,7 +26,7 @@ type CommitInfo struct {
 	Total   uint
 }
 
-var readmeRegex = regexp.MustCompile("README|(README\\.[a-zA-Z0-9]+)")
+var readmeRegex = regexp.MustCompile(`README|(README\.[a-zA-Z0-9]+)`)
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
 	var entries []RepoFile
@@ -111,7 +111,7 @@ func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
 	fp := file.FilePath()
 
 	submodule, err := r.git.Submodules.Lookup(fp)
-	if git.IsErrorClass(err, git.ErrClassSubmodule) {
+	if git.IsErrorClass(err, git.ErrorClassSubmodule) {
 		// TODO: Submodules.Lookup does not work in bare repositories.
 		// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
 		gitmodules := &RepoFile{".gitmodules", git.ObjectBlob}
