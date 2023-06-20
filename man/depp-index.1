@@ -9,6 +9,7 @@
 .Op Fl d Ar destination
 .Op Fl s Ar description
 .Op Fl t Ar title
+.Op Fl x
 .Ar repository ...
 .Sh DESCRIPTION
 For the given
@@ -39,6 +40,11 @@ By default, no description is included.
 This argument specifies the
 .Ar title
 of the generated index page.
+.It Fl x
+Strip the
+.Pa .git
+file name extension (if it exists) when linking to the repository on the index page.
+This is useful when serving both the HTML and the Git repository itself over HTTP in the same directory.
 .El
 .Sh FILES
 The following files are used in bare Git repositories for metadata:

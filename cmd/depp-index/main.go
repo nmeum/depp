@@ -35,6 +35,7 @@ var (
 	desc  = flag.String("s", "", "short description of git host")
 	title = flag.String("t", "depp-index", "page title")
 	dest  = flag.String("d", "./www", "output directory for HTML files")
+	strip = flag.Bool("x", false, "strip .git extension from repository name in link")
 )
 
 func usage() {
@@ -46,9 +47,23 @@ func usage() {
 	os.Exit(2)
 }
 
+func repoLink(repo *Repo) string {
+	if *strip {
+		// Return a post-processed repository name without .git
+		return repo.Title
+	} else {
+		// Return the raw file name, potentially including .git
+		return repo.Name
+	}
+}
+
 func createHTML(page Page, path string) error {
 	const name = "base.tmpl"
+
 	html := template.New(name)
+	html.Funcs(template.FuncMap{
+		"repoLink": repoLink,
+	})
 
 	tmpl, err := html.ParseFS(templates, "tmpl/*.tmpl")
 	if err != nil {
