@@ -36,21 +36,16 @@ This software has the following dependencies:
 
 ## Installation
 
-This program can be installed using `go install`, it requires the go
-toolchain to be setup correctly and `$GOPATH` to be set. If go is
-configured correctly, simply run the following command:
+Clone the repository and ran the following commands:
 
-	$ go install github.com/nmeum/depp/...@latest
+    $ make
+    $ sudo make install
 
-To ease packaging, a `GNUmakfile` is also provided which automatically
-installs the binary and the available documentation files to the
-appropriate locations.
-
-In either case, two binaries will be installed: `depp` for generating
-HTML files on a per-repository basis and `depp-index` which can
-optionally be used to generate an HTML index page for listing all hosted
-git repositories. Both commands are further described in the provided
-man page, a usage example is provided below.
+This will install two binaries: `depp` for generating HTML files on a
+per-repository basis and `depp-index` which can optionally be used to
+generate an HTML index page for listing all hosted git repositories.
+Both commands are further described in the provided man page, a usage
+example is provided below.
 
 ## Usage
 
