@@ -30,7 +30,12 @@ a {
 	color: var(--color-blue);
 	text-decoration: none;
 }
-a:hover {
+a:hover, ::selection {
+	color: var(--color-white);
+	background-color: var(--color-blue);
+	text-shadow: none;
+}
+a:visited {
 	color: var(--color-red);
 }
 
