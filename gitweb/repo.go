@@ -126,7 +126,6 @@ func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
 		if page.CurrentFile.IsDir() {
 			page.tree, err = r.git.LookupTree(entry.Id)
 			if err != nil {
-				panic(err)
 				return nil, err
 			}
 		}
