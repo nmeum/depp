@@ -65,7 +65,7 @@ func pageName(page int) string {
 	if page == 0 {
 		return "index.html"
 	} else {
-		return fmt.Sprintf("%d.html", page)
+		return fmt.Sprintf("page-%d.html", page)
 	}
 }
 
