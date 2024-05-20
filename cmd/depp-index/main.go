@@ -141,7 +141,8 @@ func getPages(repos []Repo) []Page {
 	if *items == 0 {
 		numPages = 1
 	} else {
-		numPages = len(repos) / *items
+		// division is not truncated towards zero
+		numPages = 1 + (len(repos)-1) / *items
 	}
 
 	pages := make([]Page, numPages)
