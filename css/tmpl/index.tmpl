@@ -11,3 +11,20 @@ dt em {
 dd {
 	margin: 2px 0px 20px 10px;
 }
+
+ul.pager {
+	text-align: center;
+	list-style-type: none;
+}
+ul.pager li {
+	display: inline-block;
+}
+ul.pager a.current {
+	font-weight: bold;
+}
+ul.pager a::before {
+	content: "[";
+}
+ul.pager a::after {
+	content: "]";
+}

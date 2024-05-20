@@ -23,6 +23,9 @@ type Repo struct {
 }
 
 type Page struct {
+	CurPage  int
+	NumPages int
+
 	Title string
 	Desc  string
 	Repos []Repo
@@ -36,6 +39,7 @@ var (
 	title = flag.String("t", "depp-index", "page title")
 	dest  = flag.String("d", "./www", "output directory for HTML files")
 	strip = flag.Bool("x", false, "strip .git extension from repository name in link")
+	items = flag.Int("p", 20, "amount of repos per HTML page, a zero value disables pagination")
 )
 
 func usage() {
@@ -57,12 +61,30 @@ func repoLink(repo *Repo) string {
 	}
 }
 
+func pageName(page int) string {
+	if page == 0 {
+		return "index.html"
+	} else {
+		return fmt.Sprintf("%d.html", page)
+	}
+}
+
+func pageRefs(page Page) []int {
+	pages := make([]int, page.NumPages)
+	for i := 0; i < page.NumPages; i++ {
+		pages[i] = i
+	}
+	return pages
+}
+
 func createHTML(page Page, path string) error {
 	const name = "base.tmpl"
 
 	html := template.New(name)
 	html.Funcs(template.FuncMap{
 		"repoLink": repoLink,
+		"pageName": pageName,
+		"pageRefs": pageRefs,
 	})
 
 	tmpl, err := html.ParseFS(templates, "tmpl/*.tmpl")
@@ -114,6 +136,38 @@ func getRepos(fps []string) ([]Repo, error) {
 	return repos, nil
 }
 
+func getPages(repos []Repo) []Page {
+	var numPages int
+	if *items == 0 {
+		numPages = 1
+	} else {
+		// division is not truncated towards zero
+		numPages = 1 + (len(repos)-1) / *items
+	}
+
+	pages := make([]Page, numPages)
+	for i := 0; i < numPages; i++ {
+		var maxrepos int
+		if *items == 0 {
+			maxrepos = len(repos)
+		} else {
+			maxrepos = min(*items, len(repos))
+		}
+
+		pages[i] = Page{
+			CurPage:  i,
+			NumPages: numPages,
+			Title:    *title,
+			Desc:     *desc,
+			Repos:    repos[0:maxrepos],
+		}
+
+		repos = repos[maxrepos:]
+	}
+
+	return pages
+}
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
@@ -127,12 +181,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	page := Page{
-		Title: *title,
-		Desc:  *desc,
-		Repos: repos,
-	}
+	pages := getPages(repos)
 
 	err = os.MkdirAll(*dest, 0755)
 	if err != nil {
@@ -143,8 +192,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = createHTML(page, filepath.Join(*dest, "index.html"))
-	if err != nil {
-		log.Fatal(err)
+
+	for _, page := range pages {
+		fp := filepath.Join(*dest, pageName(page.CurPage))
+		err = createHTML(page, fp)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }

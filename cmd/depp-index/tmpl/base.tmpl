@@ -17,6 +17,17 @@
 
 		<main>
 			{{ template "repos.tmpl" .Repos }}
+
+			{{ if (ne .NumPages 1) }}
+			<nav>
+				<ul class="pager">
+					{{- $page := .CurPage -}}
+					{{ range (pageRefs .) }}
+						<li><a {{ if (eq . $page) }}class="current"{{ end }} href="{{ pageName . }}">{{ . }}</a></li>
+					{{- end }}
+				</ul>
+			</nav>
+			{{ end }}
 		</main>
 	</body>
 </html>
