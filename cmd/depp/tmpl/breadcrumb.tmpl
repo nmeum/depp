@@ -6,11 +6,18 @@
 			<ul>
 				{{- $elems := .PathElements -}}
 				{{- $amount := (len .PathElements) -}}
+				{{- $lastIdx := (decrement $amount) -}}
 
 				<li><a class="head" href="{{ (getRelPath (decrement $amount)) }}index.html">HEAD</a></li>
 				{{- range $i, $e := .PathElements -}}
 					{{- $amount = (decrement $amount) -}}
-					<li><a href="{{ (getRelPath $amount) }}{{ $e }}.html">{{ $e }}</a></li>
+					<li>
+						{{- if (eq $i $lastIdx) -}}
+							{{ $e }}
+						{{- else -}}
+							<a href="{{ (getRelPath $amount) }}{{ $e }}.html">{{ $e }}</a>
+						{{- end -}}
+					</li>
 				{{- end -}}
 			</ul>
 		{{- end -}}
