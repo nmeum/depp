@@ -39,7 +39,7 @@ var (
 	title = flag.String("t", "depp-index", "page title")
 	dest  = flag.String("d", "./www", "output directory for HTML files")
 	strip = flag.Bool("x", false, "strip .git extension from repository name in link")
-	items = flag.Int("p", 20, "amount of repos per HTML page")
+	items = flag.Int("p", 20, "amount of repos per HTML page, a zero value disables pagination")
 )
 
 func usage() {
@@ -137,11 +137,22 @@ func getRepos(fps []string) ([]Repo, error) {
 }
 
 func getPages(repos []Repo) []Page {
-	numPages := len(repos) / *items
-	pages := make([]Page, numPages)
+	var numPages int
+	if *items == 0 {
+		numPages = 1
+	} else {
+		numPages = len(repos) / *items
+	}
 
+	pages := make([]Page, numPages)
 	for i := 0; i < numPages; i++ {
-		maxrepos := min(*items, len(repos))
+		var maxrepos int
+		if *items == 0 {
+			maxrepos = len(repos)
+		} else {
+			maxrepos = min(*items, len(repos))
+		}
+
 		pages[i] = Page{
 			CurPage:  i,
 			NumPages: numPages,

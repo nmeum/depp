@@ -18,6 +18,7 @@
 		<main>
 			{{ template "repos.tmpl" .Repos }}
 
+			{{ if (ne .NumPages 1) }}
 			<nav>
 				<ul class="pager">
 					{{- $page := .CurPage -}}
@@ -26,6 +27,7 @@
 					{{- end }}
 				</ul>
 			</nav>
+			{{ end }}
 		</main>
 	</body>
 </html>
