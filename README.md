@@ -1,8 +1,8 @@
-# depp
+## README
 
 No frills static page generator for Git repositories.
 
-## Motivation
+### Motivation
 
 Dynamic git repository viewers like [cgit][cgit website] or
 [gitweb][gitweb website] inherit the general disadvantages of dynamic
@@ -21,12 +21,12 @@ existing tools like `git-log(1)`, `git-blame(1)`, et cetera. If more
 information is needed, the user should simply clone the repository and
 use `git(1)` as usual.
 
-## Status
+### Status
 
 I use this for my own Git server, it presently doesn't have any known
 bugs and the currently implemented feature set works quite well.
 
-## Dependencies
+### Dependencies
 
 This software has the following dependencies:
 
@@ -34,7 +34,7 @@ This software has the following dependencies:
 * [Go][go website] >= 1.16.0 (`embed` package needed)
 * C compiler, pkg-config, … for linking against libgit2
 
-## Installation
+### Installation
 
 Clone the repository and ran the following commands:
 
@@ -47,7 +47,7 @@ generate an HTML index page for listing all hosted git repositories.
 Both commands are further described in the provided man page, a usage
 example is provided below.
 
-## Usage
+### Usage
 
 Assuming you have a web server serving files located at
 `/var/www/htdocs/git.example.org`, you want 10 commits on the index
@@ -87,7 +87,7 @@ as follows:
 If usage of `deep-index` is also desired, the index page can either be
 rebuild as part of the `post-receive` hook or in a separate cronjob.
 
-## README Rendering
+### README Rendering
 
 Rendering README files written in a chosen markup language (e.g.
 markdown) is supported. This is achieved by including an executable file
@@ -102,7 +102,7 @@ Markdown implementation:
 	#!/bin/sh
 	exec markdown -f autolink
 
-## Caveats
+### Caveats
 
 Existing HTML files are not tracked, thus the generated HTML for files
 removed from the repository `HEAD` is not automatically removed from
@@ -121,7 +121,7 @@ cronjob. Unfortunately, this command does not remove empty directories,
 these need to be handled separately (some `find(1)` implementations
 support `-empty` for this purpose).
 
-## License
+### License
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
