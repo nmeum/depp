@@ -30,7 +30,7 @@ bugs and the currently implemented feature set works quite well.
 
 This software has the following dependencies:
 
-* [libgit2][libgit2 website] >= 1.5
+* [libgit2][libgit2 website] >= 1.8
 * [Go][go website] >= 1.21.0
 * C compiler, pkg-config, … for linking against libgit2
 
