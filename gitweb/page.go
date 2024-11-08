@@ -134,7 +134,7 @@ func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
 
 func (r *RepoPage) matchFile(reg *regexp.Regexp) *object.File {
 	var result *object.File
-	err := r.tree.Files().ForEach(func(f *object.File) error {
+	r.tree.Files().ForEach(func(f *object.File) error {
 		if reg.MatchString(f.Name) {
 			result = f
 			return errors.New("found match") // stop iter
@@ -142,9 +142,6 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) *object.File {
 
 		return nil
 	})
-	if err != nil {
-		return nil
-	}
 
 	return result
 }
