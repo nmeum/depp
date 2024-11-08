@@ -6,7 +6,7 @@
 	{{- if .CurrentFile.IsSubmodule -}}
 		{{ $blob = (.Submodule .CurrentFile) }}
 	{{- else -}}
-		{{ $blob = .Blob (.CurrentFile) }}
+		{{ $blob = (.Blob) }}
 	{{- end -}}
 
 	{{- if (isBinary $blob) -}}

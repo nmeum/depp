@@ -94,7 +94,12 @@ func (r *RepoPage) Blob() ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	f, err := r.tree.File(r.CurrentFile.Path)
+	commit, err := r.Tip()
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := commit.File(r.CurrentFile.Path)
 	if err != nil {
 		return nil, err
 	}
