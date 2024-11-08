@@ -1,16 +1,23 @@
 package gitweb
 
 import (
-	git "github.com/libgit2/git2go/v34"
-
 	"errors"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/cache"
+	"github.com/go-git/go-git/v5/plumbing/filemode"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/storage/filesystem"
+
+	"github.com/go-git/go-billy/v5/osfs"
 )
 
-// Repo represents information required per repository.
 type Repo struct {
 	git        *git.Repository
 	maxCommits uint
@@ -23,23 +30,16 @@ type Repo struct {
 // File name of the git description file.
 const descFn = "description"
 
-func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
-	var err error
-
+func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	absFp, err := filepath.Abs(fp)
 	if err != nil {
 		return nil, err
 	}
-	r := &Repo{Path: absFp}
 
-	r.git, err = git.OpenRepository(absFp)
-	if err != nil {
-		return nil, err
-	}
-
+	r := &Repo{Path: absFp, maxCommits: commits}
 	r.Title = filepath.Base(absFp)
-	if gitServer != nil {
-		r.URL = gitServer.String()
+	if cloneURL != nil {
+		r.URL = cloneURL.String()
 	}
 
 	ext := strings.LastIndex(r.Title, ".git")
@@ -47,18 +47,34 @@ func NewRepo(fp string, gitServer *url.URL, commits uint) (*Repo, error) {
 		r.Title = r.Title[0:ext]
 	}
 
-	r.maxCommits = commits
+	fs := osfs.New(absFp)
+	if _, err := fs.Stat(git.GitDirName); err == nil {
+		// If this is not a bare repository, we change into
+		// the .git directory so that we can treat it as such.
+		fs, err = fs.Chroot(git.GitDirName)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	s := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
+
+	r.git, err = git.Open(s, fs)
+	if err != nil {
+		return nil, err
+	}
+
 	return r, nil
 }
 
-func (r *Repo) Tip() (*git.Commit, error) {
+func (r *Repo) Tip() (*object.Commit, error) {
 	head, err := r.git.Head()
 	if err != nil {
 		return nil, err
 	}
 
-	oid := head.Target()
-	commit, err := r.git.LookupCommit(oid)
+	hash := head.Hash()
+	commit, err := r.git.CommitObject(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -67,25 +83,43 @@ func (r *Repo) Tip() (*git.Commit, error) {
 }
 
 func (r *Repo) Walk(fn func(*RepoPage) error) error {
-	head, err := r.git.Head()
+	head, err := r.Tip()
 	if err != nil {
 		return err
 	}
 
-	indexPage, err := r.Page(head, "")
+	tree, err := head.Tree()
 	if err != nil {
 		return err
 	}
 
 	// . is not included by tree.Walk()
+	indexPage := &RepoPage{
+		Repo:        r,
+		tree:        tree,
+		CurrentFile: RepoFile{true, ""},
+	}
 	err = fn(indexPage)
 	if err != nil {
 		return err
 	}
 
-	return indexPage.tree.Walk(func(root string, e *git.TreeEntry) error {
-		fp := filepath.Join(root, e.Name)
-		page, err := r.Page(head, fp)
+	var seen map[plumbing.Hash]bool
+	walker := object.NewTreeWalker(tree, true, seen)
+	defer walker.Close()
+	for {
+		fp, entry, err := walker.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+
+		repoFile := RepoFile{
+			IsDir: entry.Mode == filemode.Dir,
+			Path:  filepath.ToSlash(fp),
+		}
+		page, err := r.page(entry.Hash, repoFile)
 		if err != nil {
 			return err
 		}
@@ -94,43 +128,24 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		if err != nil {
 			return err
 		}
+	}
 
-		return nil
-	})
+	return nil
 }
 
-func (r *Repo) Page(ref *git.Reference, fp string) (*RepoPage, error) {
+func (r *Repo) page(hash plumbing.Hash, rf RepoFile) (*RepoPage, error) {
 	var err error
-	page := &RepoPage{Repo: *r}
-
-	oid := ref.Target()
-	page.commit, err = r.git.LookupCommit(oid)
-	if err != nil {
-		return nil, err
+	page := &RepoPage{
+		Repo:        r,
+		tree:        nil,
+		CurrentFile: rf,
 	}
 
-	page.tree, err = page.commit.Tree()
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: Find out how to retrieve the TreeEntry for /
-	page.CurrentFile = RepoFile{Path: filepath.ToSlash(fp)}
-	if page.CurrentFile.Path != "" {
-		entry, err := page.tree.EntryByPath(fp)
+	if page.CurrentFile.IsDir {
+		page.tree, err = r.git.TreeObject(hash)
 		if err != nil {
 			return nil, err
 		}
-		page.CurrentFile.Type = entry.Type
-
-		if page.CurrentFile.IsDir() {
-			page.tree, err = r.git.LookupTree(entry.Id)
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		page.CurrentFile.Type = git.ObjectTree
 	}
 
 	return page, nil

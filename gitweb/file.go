@@ -4,14 +4,13 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-
-	git "github.com/libgit2/git2go/v34"
 )
 
 // RepoFile represents information for a single file/blob.
 type RepoFile struct {
-	Path string // Slash separated path
-	Type git.ObjectType
+	// TODO: Considering including objects.File?!
+	IsDir bool   // TODO: could store plumbing/filemode here
+	Path  string // Slash separated path
 }
 
 func (f *RepoFile) Name() string {
@@ -22,12 +21,9 @@ func (f *RepoFile) FilePath() string {
 	return filepath.FromSlash(f.Path)
 }
 
-func (f *RepoFile) IsDir() bool {
-	return f.Type == git.ObjectTree
-}
-
 func (f *RepoFile) IsSubmodule() bool {
-	return f.Type == git.ObjectCommit
+	// TODO
+	return false
 }
 
 func (f *RepoFile) PathElements() []string {
