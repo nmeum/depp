@@ -38,7 +38,9 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	}
 	basepath := filepath.Base(r.CurrentFile.Path)
 
-	var entries []RepoFile
+	var numEntries int
+	entries := make([]RepoFile, len(r.tree.Entries))
+
 	seen := make(map[string]bool)
 	err := r.tree.Files().ForEach(func(f *object.File) error {
 		name := f.Name
@@ -61,13 +63,16 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 			IsDir: isDir,
 		}
 
-		entries = append(entries, file)
+		entries[numEntries] = file
+		numEntries++
+
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
+	entries = entries[0:numEntries]
 	sort.Sort(byType(entries))
 	return entries, nil
 }
