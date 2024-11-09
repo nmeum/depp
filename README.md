@@ -1,25 +1,23 @@
 ## README
 
-No frills static page generator for Git repositories.
+No frills, single binary, static page generator for Git repositories.
 
 ### Motivation
 
-Dynamic git repository viewers like [cgit][cgit website] or
-[gitweb][gitweb website] inherit the general disadvantages of dynamic
-web applications (resource consumption, security concerns, …). For this
-reason, static page generators for git (e.g. [git-arr][git-arr website]
-or [stagit][stagit website]) emerged recently. However, these page
-generators are usually not compatible with large repository as they
-generate lots of HTML files (e.g. one for each commit).
+Contrary to existing static [page][stagit website] [generator][depp website]
+approaches, this software does not strive to be a fully featured git browser
+for the web. Instead, the idea is to provide a quick overview for a given
+repository, thereby allowing users to decide whether it is interesting enough
+to be cloned. As such, this software does intentionally not provide a web
+frontend for existing tools like `git-log(1)`, `git-blame(1)`, et cetera. If
+more information is needed, the user should simply clone the repository and use
+`git(1)` as usual.
 
-Contrary to existing static page generator approaches, this software
-does not strive to be a fully featured git browser for the web. Instead,
-the idea is to provide a quick overview for a given repository, thereby
-allowing users to decide whether it is interesting enough to be cloned.
-As such, this software does intentionally not provide a web frontend for
-existing tools like `git-log(1)`, `git-blame(1)`, et cetera. If more
-information is needed, the user should simply clone the repository and
-use `git(1)` as usual.
+Further, this page generator is entirely written in Go using the pure Go Git
+library [go-git][go-git github] instead of [libgit2][libgit2 website] to
+interact with Git repositories. Thereby, allowing the implementation to be
+compiled as a single statically linked binary while also embedding all HTML and
+CSS files into the binary through Go's [embed][go embed] package.
 
 ### Status
 
@@ -28,11 +26,7 @@ bugs and the currently implemented feature set works quite well.
 
 ### Dependencies
 
-This software has the following dependencies:
-
-* [libgit2][libgit2 website] >= 1.8
-* [Go][go website] >= 1.21.0
-* C compiler, pkg-config, … for linking against libgit2
+Apart from a [Go toolchain][go website] this software has no external dependencies.
 
 ### Installation
 
@@ -136,12 +130,10 @@ Public License for more details.
 You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>.
 
-[cgit website]: https://git.zx2c4.com/cgit/
-[gitweb website]: https://git-scm.com/docs/gitweb
-[git-arr website]: https://blitiri.com.ar/p/git-arr/
 [stagit website]: http://codemadness.nl/git/stagit/log.html
+[depp website]: https://depp.brause.cc/depp/
 [libgit2 website]: https://libgit2.org/
 [go website]: https://golang.org/
 [discount website]: http://www.pell.portland.or.us/~orc/Code/discount/
-[git2go repo]: https://github.com/libgit2/git2go
-[git2go build]: https://github.com/libgit2/git2go#installing
+[go embed]: https://pkg.go.dev/embed
+[go-git github]: https://github.com/go-git/go-git
