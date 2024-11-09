@@ -3,15 +3,17 @@ package main
 import (
 	"bytes"
 	"html/template"
-	"net/http"
 	"strings"
 
 	"github.com/nmeum/depp/gitweb"
 )
 
-func isBinary(data []byte) bool {
-	ct := http.DetectContentType(data)
-	return !strings.HasPrefix(ct, "text/")
+func summarize(msg string) string {
+	newline := strings.IndexByte(msg, '\n')
+	if newline != -1 {
+		msg = msg[0:newline]
+	}
+	return msg
 }
 
 func getRelPath(n int) string {
@@ -27,19 +29,17 @@ func getRelPath(n int) string {
 	}
 }
 
-func getLines(data []byte) []string {
+func getLines(data string) []string {
 	if len(data) == 0 {
 		return []string{""} // empty file
 	}
 
-	input := string(data)
-
 	// Remove terminating newline (if any)
-	if input[len(input)-1] == '\n' {
-		input = input[0 : len(input)-1]
+	if data[len(data)-1] == '\n' {
+		data = data[0 : len(data)-1]
 	}
 
-	return strings.Split(input, "\n")
+	return strings.Split(data, "\n")
 }
 
 func padNumber(maxnum int, curnum int) template.HTML {

@@ -1,53 +1,66 @@
 package gitweb
 
 import (
-	git "github.com/libgit2/git2go/v34"
-
 	"errors"
-	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-// RepoPage represents information required per reference.
 type RepoPage struct {
-	Repo
+	*Repo
 
-	tree   *git.Tree
-	commit *git.Commit
-
+	// Underlying file which is present on this page.
 	CurrentFile RepoFile
+
+	// Tree, if the underlying file is a directory.
+	tree *object.Tree
 }
 
 type CommitInfo struct {
-	Commits []*git.Commit
+	Commits []*object.Commit
 	Total   uint
 }
 
 var readmeRegex = regexp.MustCompile(`README|(README\.[a-zA-Z0-9]+)`)
 
+var (
+	ExpectedDirectory = errors.New("Expected directory")
+	ExpectedSubmodule = errors.New("Expected submodule")
+	ExpectedRegular   = errors.New("Expected regular file")
+)
+
 func (r *RepoPage) Files() ([]RepoFile, error) {
+	if !r.CurrentFile.IsDir() {
+		return nil, ExpectedDirectory
+	}
+
 	var entries []RepoFile
-	err := r.tree.Walk(func(root string, e *git.TreeEntry) error {
-		if root != "" {
-			return git.TreeWalkSkip // Skip passed entry
+	basepath := filepath.Base(r.CurrentFile.Path)
+
+	walker := object.NewTreeWalker(r.tree, false, nil)
+	defer walker.Close()
+	for {
+		name, f, err := walker.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
 		}
 
-		basepath := filepath.Base(r.CurrentFile.Path)
-		relpath := filepath.Join(basepath, e.Name)
-
+		relpath := filepath.Join(basepath, name)
 		file := RepoFile{
 			Path: filepath.ToSlash(relpath),
-			Type: e.Type,
+			mode: f.Mode,
 		}
 
 		entries = append(entries, file)
-		return nil
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	sort.Sort(byType(entries))
@@ -55,101 +68,98 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 }
 
 func (r *RepoPage) Commits() (*CommitInfo, error) {
-	var oid git.Oid
 	var total, numCommits uint
 
-	walker, err := r.git.Walk()
+	logOpts := &git.LogOptions{}
+	if r.CurrentFile.Path != "" {
+		logOpts.PathFilter = func(fp string) bool {
+			return fp == r.CurrentFile.Path
+		}
+	}
+	iter, err := r.git.Log(logOpts)
 	if err != nil {
 		return nil, err
 	}
-	defer walker.Free()
-	walker.Push(r.commit.AsObject().Id())
 
-	commits := make([]*git.Commit, r.maxCommits)
-	for walker.Next(&oid) == nil {
-		commit, err := r.git.LookupCommit(&oid)
-		if err != nil {
-			return nil, err
-		}
-
+	commits := make([]*object.Commit, r.maxCommits)
+	err = iter.ForEach(func(c *object.Commit) error {
 		if numCommits < r.maxCommits {
-			commits[numCommits] = commit
+			commits[numCommits] = c
 			numCommits++
 		}
 
 		total++
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	commits = commits[0:numCommits] // Shrink to appropriate size
 	return &CommitInfo{commits, total}, nil
 }
 
-func (r *RepoPage) Blob(file *RepoFile) ([]byte, error) {
-	if file.Type != git.ObjectBlob {
-		return []byte{}, errors.New("given RepoFile is not a blob")
+func (r *RepoPage) Blob() (*object.File, error) {
+	if r.CurrentFile.IsDir() || r.CurrentFile.IsSubmodule() {
+		return nil, ExpectedRegular
 	}
-	fp := file.FilePath()
 
-	entry, err := r.tree.EntryByPath(fp)
+	commit, err := r.Tip()
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
-
-	oid := entry.Id
-	blob, err := r.git.LookupBlob(oid)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return blob.Contents(), nil
+	return commit.File(r.CurrentFile.Path)
 }
 
-func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
+func (r *RepoPage) Submodule(file *RepoFile) (*object.File, error) {
 	if !file.IsSubmodule() {
-		return []byte{}, errors.New("given RepoFile is not a submodule")
-	}
-	fp := file.FilePath()
-
-	submodule, err := r.git.Submodules.Lookup(fp)
-	if git.IsErrorClass(err, git.ErrorClassSubmodule) {
-		// TODO: Submodules.Lookup does not work in bare repositories.
-		// See: https://github.com/libgit2/libgit2/commit/477b3e047426d7ccddb6028416ff0fcc2541a0fd
-		gitmodules := &RepoFile{".gitmodules", git.ObjectBlob}
-		return r.Blob(gitmodules)
+		return nil, ExpectedSubmodule
 	}
 
-	out := fmt.Sprintf("%v @ %v", submodule.Url(), submodule.IndexId())
-	return []byte(out), nil
+	// git-go only seems to have very limited support for submodules
+	// in bare repositories. Hence, just display .gitmodules for now.
+	commit, err := r.Tip()
+	if err != nil {
+		return nil, err
+	}
+	return commit.File(".gitmodules")
 }
 
-func (r *RepoPage) matchFile(reg *regexp.Regexp) *git.TreeEntry {
-	var result *git.TreeEntry
-	r.tree.Walk(func(root string, e *git.TreeEntry) error {
-		if root != "" {
-			return git.TreeWalkSkip // Different directory
+func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
+	foundErr := errors.New("found match")
+
+	var result *object.File
+	err := r.tree.Files().ForEach(func(f *object.File) error {
+		// Do not search in subdirectory of the directory.
+		if strings.IndexByte(f.Name, filepath.Separator) != -1 {
+			return nil
 		}
 
-		if e.Type == git.ObjectBlob && reg.MatchString(e.Name) {
-			result = e
-			return errors.New("found match") // Stop the walk
+		if reg.MatchString(f.Name) {
+			result = f
+			return foundErr // stop iter
 		}
 
 		return nil
 	})
+	if err == foundErr {
+		return result, nil
+	} else if err != nil {
+		return nil, err
+	}
 
-	return result
+	return nil, os.ErrNotExist
 }
 
 func (r *RepoPage) Readme() (string, error) {
-	entry := r.matchFile(readmeRegex)
-	if entry == nil {
-		return "", os.ErrNotExist
+	if !r.CurrentFile.IsDir() {
+		return "", ExpectedDirectory
 	}
 
-	blob, err := r.git.LookupBlob(entry.Id)
+	entry, err := r.matchFile(readmeRegex)
 	if err != nil {
 		return "", err
 	}
 
-	return string(blob.Contents()), nil
+	return entry.Contents()
 }

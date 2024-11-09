@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	git "github.com/libgit2/git2go/v34"
+	"github.com/go-git/go-git/v5/plumbing/filemode"
 )
 
 // RepoFile represents information for a single file/blob.
 type RepoFile struct {
+	mode filemode.FileMode
 	Path string // Slash separated path
-	Type git.ObjectType
 }
 
 func (f *RepoFile) Name() string {
@@ -23,11 +23,11 @@ func (f *RepoFile) FilePath() string {
 }
 
 func (f *RepoFile) IsDir() bool {
-	return f.Type == git.ObjectTree
+	return f.mode == filemode.Dir
 }
 
 func (f *RepoFile) IsSubmodule() bool {
-	return f.Type == git.ObjectCommit
+	return f.mode == filemode.Submodule
 }
 
 func (f *RepoFile) PathElements() []string {

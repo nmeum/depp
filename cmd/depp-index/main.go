@@ -123,7 +123,7 @@ func getRepos(fps []string) ([]Repo, error) {
 			return []Repo{}, err
 		}
 
-		sig := commit.Committer()
+		sig := commit.Committer
 		repos[i] = Repo{
 			Name:     filepath.Base(fp),
 			Title:    r.Title,

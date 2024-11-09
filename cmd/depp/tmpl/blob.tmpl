@@ -2,21 +2,23 @@
 	{{ template "breadcrumb.tmpl" .CurrentFile }}
 
 	<pre class="blob">
-	{{- $blob := "" -}}
+	{{- $file := "" -}}
 	{{- if .CurrentFile.IsSubmodule -}}
-		{{ $blob = (.Submodule .CurrentFile) }}
+		{{ $file = (.Submodule .CurrentFile) }}
 	{{- else -}}
-		{{ $blob = .Blob (.CurrentFile) }}
+		{{ $file = .Blob }}
 	{{- end -}}
 
-	{{- if (isBinary $blob) -}}
-		This is a binary file, clone the repository to access it.
-	{{- else -}}
-		{{- $lines := (getLines $blob) -}}
-		{{- range $i, $line := $lines }}
+	{{- with $file -}}
+		{{- if .IsBinary -}}
+			This is a binary file, clone the repository to access it.
+		{{- else -}}
+			{{- $lines := (getLines (.Contents)) -}}
+			{{- range $i, $line := $lines }}
 {{- $i = increment $i }}
 <code id="L{{ $i }}"><a href="#L{{ $i }}">{{ padNumber (len $lines) $i }}{{ $i }}</a>{{ . }}</code>
-		{{- end }}
+			{{- end }}
+		{{- end -}}
 	{{- end -}}
 	</pre>
 </section>
