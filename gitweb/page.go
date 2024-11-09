@@ -132,18 +132,30 @@ func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
 	return []byte{}, errors.New("submodule support not yet implemented")
 }
 
-func (r *RepoPage) matchFile(reg *regexp.Regexp) *object.File {
+func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
+	foundErr := errors.New("found match")
+
 	var result *object.File
-	r.tree.Files().ForEach(func(f *object.File) error {
+	err := r.tree.Files().ForEach(func(f *object.File) error {
+		// Do not search in subdirectory of the directory.
+		if strings.IndexByte(f.Name, filepath.Separator) != -1 {
+			return nil
+		}
+
 		if reg.MatchString(f.Name) {
 			result = f
-			return errors.New("found match") // stop iter
+			return foundErr // stop iter
 		}
 
 		return nil
 	})
+	if err == foundErr {
+		return result, nil
+	} else if err != nil {
+		return nil, err
+	}
 
-	return result
+	return nil, os.ErrNotExist
 }
 
 func (r *RepoPage) Readme() (string, error) {
@@ -151,9 +163,9 @@ func (r *RepoPage) Readme() (string, error) {
 		return "", nil
 	}
 
-	entry := r.matchFile(readmeRegex)
-	if entry == nil {
-		return "", os.ErrNotExist
+	entry, err := r.matchFile(readmeRegex)
+	if err != nil {
+		return "", err
 	}
 
 	return entry.Contents()
