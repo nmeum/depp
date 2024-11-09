@@ -10,7 +10,6 @@ import (
 
 // RepoFile represents information for a single file/blob.
 type RepoFile struct {
-	// TODO: Considering including objects.File?!
 	mode filemode.FileMode
 	Path string // Slash separated path
 }

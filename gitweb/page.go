@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/utils/ioutil"
 )
 
 type RepoPage struct {
@@ -94,54 +93,30 @@ func (r *RepoPage) Commits() (*CommitInfo, error) {
 	return &CommitInfo{commits, total}, nil
 }
 
-// TODO: Provide a better API which allows us to use File.IsBinary etc
-func (r *RepoPage) Blob() ([]byte, error) {
+func (r *RepoPage) Blob() (*object.File, error) {
 	if r.CurrentFile.IsDir() {
-		return []byte{}, nil
+		return nil, nil
 	}
 
 	commit, err := r.Tip()
 	if err != nil {
 		return nil, err
 	}
-
-	f, err := commit.File(r.CurrentFile.Path)
-	if err != nil {
-		return nil, err
-	}
-	reader, err := f.Reader()
-	if err != nil {
-		return nil, err
-	}
-	defer ioutil.CheckClose(reader, &err)
-
-	return io.ReadAll(reader)
+	return commit.File(r.CurrentFile.Path)
 }
 
-func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
+func (r *RepoPage) Submodule(file *RepoFile) (*object.File, error) {
 	if !file.IsSubmodule() {
-		return []byte{}, errors.New("not a submodule")
+		return nil, errors.New("not a submodule")
 	}
 
 	// git-go only seems to have very limited support for submodules
 	// in bare repositories. Hence, just display .gitmodules for now.
-	//
-	// TODO: Code duplication wtih .Blob()
 	commit, err := r.Tip()
 	if err != nil {
 		return nil, err
 	}
-	f, err := commit.File(".gitmodules")
-	if err != nil {
-		return nil, err
-	}
-	reader, err := f.Reader()
-	if err != nil {
-		return nil, err
-	}
-	defer ioutil.CheckClose(reader, &err)
-
-	return io.ReadAll(reader)
+	return commit.File(".gitmodules")
 }
 
 func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
