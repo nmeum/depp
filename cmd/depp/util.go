@@ -9,6 +9,14 @@ import (
 	"github.com/nmeum/depp/gitweb"
 )
 
+func summarize(msg string) string {
+	newline := strings.IndexByte(msg, '\n')
+	if newline != -1 {
+		msg = msg[0:newline]
+	}
+	return msg
+}
+
 func isBinary(data []byte) bool {
 	ct := http.DetectContentType(data)
 	return !strings.HasPrefix(ct, "text/")

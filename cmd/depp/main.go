@@ -67,6 +67,7 @@ func buildHTML() (*template.Template, error) {
 	tmpl := template.New(name)
 
 	funcMap := template.FuncMap{
+		"summarize":    summarize,
 		"isBinary":     isBinary,
 		"getRelPath":   getRelPath,
 		"increment":    increment,
