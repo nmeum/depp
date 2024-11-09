@@ -104,8 +104,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		return err
 	}
 
-	var seen map[plumbing.Hash]bool
-	walker := object.NewTreeWalker(tree, true, seen)
+	walker := object.NewTreeWalker(tree, true, nil)
 	defer walker.Close()
 	for {
 		fp, entry, err := walker.Next()
