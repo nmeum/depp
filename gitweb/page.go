@@ -134,7 +134,29 @@ func (r *RepoPage) Blob() ([]byte, error) {
 }
 
 func (r *RepoPage) Submodule(file *RepoFile) ([]byte, error) {
-	return []byte{}, errors.New("submodule support not yet implemented")
+	if !file.IsSubmodule() {
+		return []byte{}, errors.New("not a submodule")
+	}
+
+	// git-go only seems to have very limited support for submodules
+	// in bare repositories. Hence, just display .gitmodules for now.
+	//
+	// TODO: Code duplication wtih .Blob()
+	commit, err := r.Tip()
+	if err != nil {
+		return nil, err
+	}
+	f, err := commit.File(".gitmodules")
+	if err != nil {
+		return nil, err
+	}
+	reader, err := f.Reader()
+	if err != nil {
+		return nil, err
+	}
+	defer ioutil.CheckClose(reader, &err)
+
+	return io.ReadAll(reader)
 }
 
 func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
