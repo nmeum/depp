@@ -12,5 +12,5 @@ func (t byType) Swap(i, j int) {
 }
 
 func (t byType) Less(i, j int) bool {
-	return t[i].IsDir && !t[j].IsDir
+	return t[i].IsDir() && !t[j].IsDir()
 }

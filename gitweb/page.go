@@ -33,7 +33,7 @@ type CommitInfo struct {
 var readmeRegex = regexp.MustCompile(`README|(README\.[a-zA-Z0-9]+)`)
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
-	if !r.CurrentFile.IsDir {
+	if !r.CurrentFile.IsDir() {
 		return nil, nil
 	}
 	basepath := filepath.Base(r.CurrentFile.Path)
@@ -44,12 +44,12 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	seen := make(map[string]bool)
 	err := r.tree.Files().ForEach(func(f *object.File) error {
 		name := f.Name
-		isDir := f.Mode == filemode.Dir
+		mode := f.Mode
 
 		slash := strings.IndexByte(f.Name, filepath.Separator)
 		if slash != -1 {
 			name = f.Name[0:slash]
-			isDir = true
+			mode = filemode.Dir
 			if seen[name] {
 				return nil
 			} else {
@@ -59,8 +59,8 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 
 		relpath := filepath.Join(basepath, name)
 		file := RepoFile{
-			Path:  filepath.ToSlash(relpath),
-			IsDir: isDir,
+			Path: filepath.ToSlash(relpath),
+			mode: mode,
 		}
 
 		entries[numEntries] = file
@@ -111,7 +111,7 @@ func (r *RepoPage) Commits() (*CommitInfo, error) {
 
 // TODO: Provide a better API which allows us to use File.IsBinary etc
 func (r *RepoPage) Blob() ([]byte, error) {
-	if r.CurrentFile.IsDir {
+	if r.CurrentFile.IsDir() {
 		return []byte{}, nil
 	}
 
@@ -164,7 +164,7 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
 }
 
 func (r *RepoPage) Readme() (string, error) {
-	if !r.CurrentFile.IsDir {
+	if !r.CurrentFile.IsDir() {
 		return "", nil
 	}
 

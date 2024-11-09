@@ -97,7 +97,7 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	indexPage := &RepoPage{
 		Repo:        r,
 		tree:        tree,
-		CurrentFile: RepoFile{true, ""},
+		CurrentFile: RepoFile{filemode.Dir, ""},
 	}
 	err = fn(indexPage)
 	if err != nil {
@@ -116,8 +116,8 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 		}
 
 		repoFile := RepoFile{
-			IsDir: entry.Mode == filemode.Dir,
-			Path:  filepath.ToSlash(fp),
+			mode: entry.Mode,
+			Path: filepath.ToSlash(fp),
 		}
 		page, err := r.page(entry.Hash, repoFile)
 		if err != nil {
@@ -141,7 +141,7 @@ func (r *Repo) page(hash plumbing.Hash, rf RepoFile) (*RepoPage, error) {
 		CurrentFile: rf,
 	}
 
-	if page.CurrentFile.IsDir {
+	if page.CurrentFile.IsDir() {
 		page.tree, err = r.git.TreeObject(hash)
 		if err != nil {
 			return nil, err
