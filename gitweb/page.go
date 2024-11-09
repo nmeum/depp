@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/filemode"
@@ -38,11 +39,26 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	basepath := filepath.Base(r.CurrentFile.Path)
 
 	var entries []RepoFile
+	seen := make(map[string]bool)
 	err := r.tree.Files().ForEach(func(f *object.File) error {
-		relpath := filepath.Join(basepath, f.Name)
+		name := f.Name
+		isDir := f.Mode == filemode.Dir
+
+		slash := strings.IndexByte(f.Name, '/')
+		if slash != -1 {
+			name = f.Name[0:slash]
+			isDir = true
+			if seen[name] {
+				return nil
+			} else {
+				seen[name] = true
+			}
+		}
+
+		relpath := filepath.Join(basepath, name)
 		file := RepoFile{
 			Path:  filepath.ToSlash(relpath),
-			IsDir: f.Mode == filemode.Dir,
+			IsDir: isDir,
 		}
 
 		entries = append(entries, file)
