@@ -46,7 +46,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 		name := f.Name
 		isDir := f.Mode == filemode.Dir
 
-		slash := strings.IndexByte(f.Name, '/')
+		slash := strings.IndexByte(f.Name, filepath.Separator)
 		if slash != -1 {
 			name = f.Name[0:slash]
 			isDir = true
