@@ -19,6 +19,7 @@ import (
 )
 
 type Repo struct {
+	head       *object.Commit
 	git        *git.Repository
 	maxCommits uint
 
@@ -68,6 +69,10 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 }
 
 func (r *Repo) Tip() (*object.Commit, error) {
+	if r.head != nil {
+		return r.head, nil
+	}
+
 	head, err := r.git.Head()
 	if err != nil {
 		return nil, err
@@ -79,6 +84,7 @@ func (r *Repo) Tip() (*object.Commit, error) {
 		return nil, err
 	}
 
+	r.head = commit
 	return commit, nil
 }
 
