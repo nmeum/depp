@@ -31,14 +31,14 @@ type CommitInfo struct {
 var readmeRegex = regexp.MustCompile(`README|(README\.[a-zA-Z0-9]+)`)
 
 var (
-	expectedDirectory = errors.New("expected directory")
-	expectedSubmodule = errors.New("expected submodule")
-	expectedRegular   = errors.New("expected regular file")
+	ExpectedDirectory = errors.New("Expected directory")
+	ExpectedSubmodule = errors.New("Expected submodule")
+	ExpectedRegular   = errors.New("Expected regular file")
 )
 
 func (r *RepoPage) Files() ([]RepoFile, error) {
 	if !r.CurrentFile.IsDir() {
-		return nil, expectedDirectory
+		return nil, ExpectedDirectory
 	}
 
 	var entries []RepoFile
@@ -101,7 +101,7 @@ func (r *RepoPage) Commits() (*CommitInfo, error) {
 
 func (r *RepoPage) Blob() (*object.File, error) {
 	if r.CurrentFile.IsDir() || r.CurrentFile.IsSubmodule() {
-		return nil, expectedRegular
+		return nil, ExpectedRegular
 	}
 
 	commit, err := r.Tip()
@@ -113,7 +113,7 @@ func (r *RepoPage) Blob() (*object.File, error) {
 
 func (r *RepoPage) Submodule(file *RepoFile) (*object.File, error) {
 	if !file.IsSubmodule() {
-		return nil, expectedSubmodule
+		return nil, ExpectedSubmodule
 	}
 
 	// git-go only seems to have very limited support for submodules
@@ -153,7 +153,7 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
 
 func (r *RepoPage) Readme() (string, error) {
 	if !r.CurrentFile.IsDir() {
-		return "", expectedDirectory
+		return "", ExpectedDirectory
 	}
 
 	entry, err := r.matchFile(readmeRegex)
