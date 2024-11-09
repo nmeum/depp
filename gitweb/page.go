@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/filemode"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/utils/ioutil"
 )
@@ -36,43 +35,29 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 	if !r.CurrentFile.IsDir() {
 		return nil, nil
 	}
+
+	var entries []RepoFile
 	basepath := filepath.Base(r.CurrentFile.Path)
 
-	var numEntries int
-	entries := make([]RepoFile, len(r.tree.Entries))
-
-	seen := make(map[string]bool)
-	err := r.tree.Files().ForEach(func(f *object.File) error {
-		name := f.Name
-		mode := f.Mode
-
-		slash := strings.IndexByte(f.Name, filepath.Separator)
-		if slash != -1 {
-			name = f.Name[0:slash]
-			mode = filemode.Dir
-			if seen[name] {
-				return nil
-			} else {
-				seen[name] = true
-			}
+	walker := object.NewTreeWalker(r.tree, false, nil)
+	defer walker.Close()
+	for {
+		name, f, err := walker.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
 		}
 
 		relpath := filepath.Join(basepath, name)
 		file := RepoFile{
 			Path: filepath.ToSlash(relpath),
-			mode: mode,
+			mode: f.Mode,
 		}
 
-		entries[numEntries] = file
-		numEntries++
-
-		return nil
-	})
-	if err != nil {
-		return nil, err
+		entries = append(entries, file)
 	}
 
-	entries = entries[0:numEntries]
 	sort.Sort(byType(entries))
 	return entries, nil
 }
