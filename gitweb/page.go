@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -125,30 +124,30 @@ func (r *RepoPage) Submodule(file *RepoFile) (*object.File, error) {
 	return commit.File(".gitmodules")
 }
 
-func (r *RepoPage) matchFile(reg *regexp.Regexp) (*object.File, error) {
-	foundErr := errors.New("found match")
+func (r *RepoPage) matchFile(reg *regexp.Regexp) (string, error) {
+	var result string
 
-	var result *object.File
-	err := r.tree.Files().ForEach(func(f *object.File) error {
-		// Do not search in subdirectory of the directory.
-		if strings.IndexByte(f.Name, filepath.Separator) != -1 {
-			return nil
+	walker := object.NewTreeWalker(r.tree, false, nil)
+	defer walker.Close()
+	for {
+		_, f, err := walker.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return "", err
 		}
 
-		if reg.MatchString(f.Name) {
-			result = f
-			return foundErr // stop iter
+		if reg.MatchString(filepath.Base(f.Name)) {
+			result = f.Name
+			break
 		}
-
-		return nil
-	})
-	if err == foundErr {
-		return result, nil
-	} else if err != nil {
-		return nil, err
 	}
 
-	return nil, os.ErrNotExist
+	if result == "" {
+		return "", os.ErrNotExist
+	}
+
+	return result, nil
 }
 
 func (r *RepoPage) Readme() (string, error) {
@@ -156,10 +155,14 @@ func (r *RepoPage) Readme() (string, error) {
 		return "", ExpectedDirectory
 	}
 
-	entry, err := r.matchFile(readmeRegex)
+	fp, err := r.matchFile(readmeRegex)
+	if err != nil {
+		return "", err
+	}
+	file, err := r.tree.File(fp)
 	if err != nil {
 		return "", err
 	}
 
-	return entry.Contents()
+	return file.Contents()
 }
