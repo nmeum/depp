@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/plumbing/filemode"
+	"github.com/go-git/go-git/v5/plumbing/hash"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 
@@ -19,7 +20,9 @@ import (
 )
 
 type Repo struct {
-	head       *object.Commit
+	curTree  *object.Tree
+	prevTree *object.Tree // may be nil
+
 	git        *git.Repository
 	maxCommits uint
 
@@ -28,8 +31,34 @@ type Repo struct {
 	URL   string
 }
 
-// File name of the git description file.
-const descFn = "description"
+const (
+	// File name of the git description file.
+	descFn = "description"
+
+	// File name of the file storing the last build commit.
+	stateFn = ".depp"
+)
+
+func readHashFile(r io.Reader) (plumbing.Hash, error) {
+	var hashData = make([]byte, hash.HexSize)
+	_, err := r.Read(hashData)
+	if err != nil {
+		return plumbing.Hash{}, err
+	}
+
+	// TODO: Consider building our own hex decoder?
+	return plumbing.NewHash(string(hashData)), nil
+}
+
+func repoTitle(path string) string {
+	title := filepath.Base(path)
+	ext := strings.LastIndex(title, ".git")
+	if ext > 0 {
+		title = title[0:ext]
+	}
+
+	return title
+}
 
 func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	absFp, err := filepath.Abs(fp)
@@ -37,15 +66,9 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 		return nil, err
 	}
 
-	r := &Repo{Path: absFp, maxCommits: commits}
-	r.Title = filepath.Base(absFp)
+	r := &Repo{Path: absFp, Title: repoTitle(absFp), maxCommits: commits}
 	if cloneURL != nil {
 		r.URL = cloneURL.String()
-	}
-
-	ext := strings.LastIndex(r.Title, ".git")
-	if ext > 0 {
-		r.Title = r.Title[0:ext]
 	}
 
 	fs := osfs.New(absFp)
@@ -59,8 +82,30 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	}
 
 	s := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
-
 	r.git, err = git.Open(s, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	commitFile, err := os.Open(filepath.Join(r.Path, stateFn))
+	if err == nil {
+		h, err := readHashFile(commitFile)
+		if err != nil {
+			return nil, err
+		}
+
+		r.prevTree, err = r.git.TreeObject(h)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// TODO: Make head a public member of the Repository struct.
+	head, err := r.Tip()
+	if err != nil {
+		return nil, err
+	}
+	r.curTree, err = head.Tree()
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +113,22 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	return r, nil
 }
 
-func (r *Repo) Tip() (*object.Commit, error) {
-	if r.head != nil {
-		return r.head, nil
+// TODO: Close Git repository too
+func (r *Repo) Close() error {
+	stateFile, err := os.Create(filepath.Join(r.Path, stateFn))
+	if err != nil {
+		return err
 	}
 
+	_, err = stateFile.WriteString(r.curTree.Hash.String())
+	if err != nil {
+		return err
+	}
+
+	return stateFile.Close()
+}
+
+func (r *Repo) Tip() (*object.Commit, error) {
 	head, err := r.git.Head()
 	if err != nil {
 		return nil, err
@@ -84,33 +140,22 @@ func (r *Repo) Tip() (*object.Commit, error) {
 		return nil, err
 	}
 
-	r.head = commit
 	return commit, nil
 }
 
-func (r *Repo) Walk(fn func(*RepoPage) error) error {
-	head, err := r.Tip()
-	if err != nil {
-		return err
-	}
-
-	tree, err := head.Tree()
-	if err != nil {
-		return err
-	}
-
+func (r *Repo) walkTree(fn func(*RepoPage) error) error {
 	// . is not included by tree.Walk()
 	indexPage := &RepoPage{
 		Repo:        r,
-		tree:        tree,
-		CurrentFile: RepoFile{filemode.Dir, ""},
+		tree:        r.curTree,
+		CurrentFile: RepoFile{mode: filemode.Dir, Path: ""},
 	}
-	err = fn(indexPage)
+	err := fn(indexPage)
 	if err != nil {
 		return err
 	}
 
-	walker := object.NewTreeWalker(tree, true, nil)
+	walker := object.NewTreeWalker(r.curTree, true, nil)
 	defer walker.Close()
 	for {
 		fp, entry, err := walker.Next()
@@ -120,15 +165,10 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 			return err
 		}
 
-		repoFile := RepoFile{
-			mode: entry.Mode,
-			Path: filepath.ToSlash(fp),
-		}
-		page, err := r.page(entry.Hash, repoFile)
+		page, err := r.page(entry.Hash, entry.Mode, fp)
 		if err != nil {
 			return err
 		}
-
 		err = fn(page)
 		if err != nil {
 			return err
@@ -138,14 +178,72 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	return nil
 }
 
-func (r *Repo) page(hash plumbing.Hash, rf RepoFile) (*RepoPage, error) {
-	var err error
+func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
+	changes, err := object.DiffTree(r.prevTree, r.curTree)
+	if err != nil {
+		return err
+	}
+	patch, err := changes.Patch()
+	if err != nil {
+		return err
+	}
+
+	rebuildDirs := make(map[string]bool)
+	for _, filePatch := range patch.FilePatches() {
+		from, to := filePatch.Files()
+		if to == nil {
+			rebuildDirs[filepath.Dir(from.Path())] = true
+			continue // TODO: Handle removed files
+		} else if from == nil {
+			rebuildDirs[filepath.Dir(to.Path())] = true
+			continue // TODO: Handle removed files
+		}
+
+		page, err := r.page(from.Hash(), from.Mode(), from.Path())
+		if err != nil {
+			return err
+		}
+		err = fn(page)
+		if err != nil {
+			return err
+		}
+	}
+
+	for dir, _ := range rebuildDirs {
+		entry, err := r.curTree.FindEntry(dir)
+		if err != nil {
+			return err
+		}
+
+		page, err := r.page(entry.Hash, entry.Mode, dir)
+		if err != nil {
+			return err
+		}
+		err = fn(page)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Repo) Walk(fn func(*RepoPage) error) error {
+	if r.prevTree == nil {
+		return r.walkTree(fn)
+	} else {
+		return r.walkDiff(fn)
+	}
+}
+
+func (r *Repo) page(hash plumbing.Hash, mode filemode.FileMode, fp string) (*RepoPage, error) {
 	page := &RepoPage{
 		Repo:        r,
 		tree:        nil,
-		CurrentFile: rf,
+		CurrentFile: RepoFile{mode, filepath.ToSlash(fp)},
 	}
 
+	var err error
 	if page.CurrentFile.IsDir() {
 		page.tree, err = r.git.TreeObject(hash)
 		if err != nil {

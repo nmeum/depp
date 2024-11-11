@@ -36,6 +36,7 @@ func usage() {
 }
 
 func walkPages(page *gitweb.RepoPage) error {
+	fmt.Println("page:", page.CurrentFile.Path)
 	name := page.CurrentFile.Path
 	if isIndexPage(page) {
 		name = "index"
@@ -129,6 +130,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer repo.Close()
 	err = generate(repo)
 	if err != nil {
 		log.Fatal(err)
