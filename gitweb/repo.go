@@ -12,7 +12,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/plumbing/filemode"
-	"github.com/go-git/go-git/v5/plumbing/hash"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 
@@ -38,27 +37,6 @@ const (
 	// File name of the file storing the last build commit.
 	stateFn = ".depp"
 )
-
-func readHashFile(r io.Reader) (plumbing.Hash, error) {
-	var hashData = make([]byte, hash.HexSize)
-	_, err := r.Read(hashData)
-	if err != nil {
-		return plumbing.Hash{}, err
-	}
-
-	// TODO: Consider building our own hex decoder?
-	return plumbing.NewHash(string(hashData)), nil
-}
-
-func repoTitle(path string) string {
-	title := filepath.Base(path)
-	ext := strings.LastIndex(title, ".git")
-	if ext > 0 {
-		title = title[0:ext]
-	}
-
-	return title
-}
 
 func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	absFp, err := filepath.Abs(fp)
