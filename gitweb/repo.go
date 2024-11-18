@@ -121,14 +121,16 @@ func (r *Repo) Tip() (*object.Commit, error) {
 	return commit, nil
 }
 
-func (r *Repo) walkTree(fn func(*RepoPage) error) error {
-	// . is not included by tree.Walk()
-	indexPage := &RepoPage{
+func (r *Repo) indexPage() *RepoPage {
+	return &RepoPage{
 		Repo:        r,
 		tree:        r.curTree,
 		CurrentFile: RepoFile{mode: filemode.Dir, Path: ""},
 	}
-	err := fn(indexPage)
+}
+
+func (r *Repo) walkTree(fn func(*RepoPage) error) error {
+	err := fn(r.indexPage())
 	if err != nil {
 		return err
 	}
@@ -177,7 +179,12 @@ func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
 			continue // TODO: Handle removed files
 		}
 
-		page, err := r.page(from.Hash(), from.Mode(), from.Path())
+		fp := from.Path()
+		if isReadme(fp) {
+			rebuildDirs[filepath.Dir(fp)] = true
+		}
+
+		page, err := r.page(from.Hash(), from.Mode(), fp)
 		if err != nil {
 			return err
 		}
@@ -188,15 +195,21 @@ func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
 	}
 
 	for dir, _ := range rebuildDirs {
-		entry, err := r.curTree.FindEntry(dir)
-		if err != nil {
-			return err
+		var page *RepoPage
+		if dir == "." {
+			page = r.indexPage()
+		} else {
+			entry, err := r.curTree.FindEntry(dir)
+			if err != nil {
+				return err
+			}
+
+			page, err = r.page(entry.Hash, entry.Mode, dir)
+			if err != nil {
+				return err
+			}
 		}
 
-		page, err := r.page(entry.Hash, entry.Mode, dir)
-		if err != nil {
-			return err
-		}
 		err = fn(page)
 		if err != nil {
 			return err
