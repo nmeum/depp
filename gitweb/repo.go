@@ -203,6 +203,13 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 		}
 	}
 
+	// If the tree changed, assume that we need to rebuild the index.
+	// For example, because the commits are listed there. This a somewhat
+	// depp-specific assumption which is hackily backed into the gitweb library.
+	if r.prevTree.Hash != r.curTree.Hash {
+		rebuildDirs["."] = true
+	}
+
 	for dir, _ := range rebuildDirs {
 		var page *RepoPage
 		if dir == "." {
