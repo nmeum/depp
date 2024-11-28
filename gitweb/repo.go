@@ -209,7 +209,15 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 			page = r.indexPage()
 		} else {
 			entry, err := r.curTree.FindEntry(dir)
-			if err != nil {
+			if err == object.ErrEntryNotFound {
+				// If we can't find the directory anymore, then the file
+				// contained in it was removed and was the only file in it.
+				err = fn(dir, nil)
+				if err != nil {
+					return err
+				}
+				continue
+			} else if err != nil {
 				return err
 			}
 
