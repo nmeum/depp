@@ -1,6 +1,6 @@
 ## README
 
-No frills, single binary, static page generator for Git repositories.
+No frills, static page generator for Git repositories.
 
 ### Motivation
 
@@ -18,6 +18,12 @@ library [go-git][go-git github] instead of [libgit2][libgit2 website] to
 interact with Git repositories. Thereby, allowing the implementation to be
 compiled as a single statically linked binary while also embedding all HTML and
 CSS files into the binary through Go's [embed][go embed] package.
+
+### Features
+
+* Easy to deploy, everything is backed into a single binary w/o external dependencies.
+* Pleasantly fast as it only rebuilds files that changed since the last invocation.
+* Simple, mobile-friendly web design which can be easily customized.
 
 ### Status
 
