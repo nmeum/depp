@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -117,9 +118,13 @@ func generate(repo *gitweb.Repo) error {
 		return err
 	}
 
-	err = css.Create(filepath.Join(*destination, "style.css"))
-	if err != nil {
-		return err
+	cssPath := filepath.Join(*destination, "style.css")
+	_, err = os.Stat(cssPath)
+	if *force || errors.Is(err, os.ErrNotExist) {
+		err = css.Create(cssPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
