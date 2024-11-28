@@ -20,6 +20,7 @@ var templates embed.FS
 
 var (
 	commits     = flag.Uint("c", 5, "amount of recent commits to include")
+	force       = flag.Bool("f", false, "force rebuilding of all HTML files")
 	gitURL      = flag.String("u", "", "clone URL for the Git repository")
 	destination = flag.String("d", "./www", "output directory for HTML files")
 )
@@ -137,9 +138,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = repo.ReadState(statePath)
-	if err != nil {
-		log.Fatal(err)
+	if !*force {
+		err = repo.ReadState(statePath)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	err = generate(repo)
