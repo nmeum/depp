@@ -48,7 +48,15 @@ func walkPages(name string, page *gitweb.RepoPage) error {
 
 	dest := filepath.Join(*destination, name+".html")
 	if page == nil { // file was removed
-		return os.Remove(dest)
+		err := os.Remove(dest)
+		if err != nil {
+			return err
+		}
+
+		// In case name refers to a (now empty) directory:
+		os.Remove(filepath.Join(*destination, name))
+
+		return nil
 	} else if isIndexPage(page) {
 		dest = filepath.Join(*destination, "index.html")
 	}
