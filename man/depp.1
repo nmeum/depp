@@ -1,4 +1,4 @@
-.Dd $Mdocdate: May 10 2020 $
+.Dd $Mdocdate: November 28 2024 $
 .Dt DEPP 1
 .Os
 .Sh NAME
@@ -8,7 +8,9 @@
 .Nm depp
 .Op Fl c Ar commits
 .Op Fl d Ar destination
+.Op Fl f
 .Op Fl u Ar URL
+.Op Fl v
 .Ar repository
 .Sh DESCRIPTION
 For the given
@@ -45,11 +47,18 @@ This directory is created if it does not exist yet.
 By default a
 .Pa www
 subdirectory is created and used in the current directory.
+.It Fl f
+By default
+.Nm
+only generates HTML for files that changed since the last invocation.
+If this option is passed, all files are regenerated unconditionally.
 .It Fl u Ar URL
 The
 .Ar URL
 used to clone the repository.
 If provided, this information is displayed in the header of each generated HTML page.
+.It Fl v
+Print the name of each file that changed since the last invocation.
 .El
 .Sh FILES
 The following special files in bare Git repositories are recognized:
