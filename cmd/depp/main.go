@@ -41,19 +41,21 @@ func usage() {
 	os.Exit(2)
 }
 
-func walkPages(page *gitweb.RepoPage) error {
-	fmt.Println("page:", page.CurrentFile.Path)
-	name := page.CurrentFile.Path
-	if isIndexPage(page) {
-		name = "index"
+func walkPages(name string, page *gitweb.RepoPage) error {
+	fmt.Println("page:", name)
+
+	dest := filepath.Join(*destination, name+".html")
+	if page == nil { // file was removed
+		return os.Remove(dest)
+	} else if isIndexPage(page) {
+		dest = filepath.Join(*destination, "index.html")
 	}
 
-	fp := filepath.Join(*destination, name+".html")
-	err := os.MkdirAll(filepath.Dir(fp), 0755)
+	err := os.MkdirAll(filepath.Dir(dest), 0755)
 	if err != nil {
 		return err
 	}
-	file, err := os.Create(fp)
+	file, err := os.Create(dest)
 	if err != nil {
 		return err
 	}

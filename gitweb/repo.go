@@ -30,6 +30,8 @@ type Repo struct {
 	URL   string
 }
 
+type WalkFunc func(string, *RepoPage) error
+
 const (
 	// File name of the git description file.
 	descFn = "description"
@@ -133,8 +135,8 @@ func (r *Repo) indexPage() *RepoPage {
 	}
 }
 
-func (r *Repo) walkTree(fn func(*RepoPage) error) error {
-	err := fn(r.indexPage())
+func (r *Repo) walkTree(fn WalkFunc) error {
+	err := fn(".", r.indexPage())
 	if err != nil {
 		return err
 	}
@@ -153,7 +155,7 @@ func (r *Repo) walkTree(fn func(*RepoPage) error) error {
 		if err != nil {
 			return err
 		}
-		err = fn(page)
+		err = fn(fp, page)
 		if err != nil {
 			return err
 		}
@@ -162,7 +164,7 @@ func (r *Repo) walkTree(fn func(*RepoPage) error) error {
 	return nil
 }
 
-func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
+func (r *Repo) walkDiff(fn WalkFunc) error {
 	changes, err := object.DiffTree(r.prevTree, r.curTree)
 	if err != nil {
 		return err
@@ -175,24 +177,27 @@ func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
 	rebuildDirs := make(map[string]bool)
 	for _, filePatch := range patch.FilePatches() {
 		from, to := filePatch.Files()
-		if to == nil {
+		if to == nil { // file was removed
 			rebuildDirs[filepath.Dir(from.Path())] = true
-			continue // TODO: Handle removed files
-		} else if from == nil {
+			err = fn(from.Path(), nil)
+			if err != nil {
+				return err
+			}
+			continue
+		} else if from == nil { // created a new file
 			rebuildDirs[filepath.Dir(to.Path())] = true
-			continue // TODO: Handle removed files
 		}
 
-		fp := from.Path()
+		fp := to.Path()
 		if isReadme(fp) {
 			rebuildDirs[filepath.Dir(fp)] = true
 		}
 
-		page, err := r.page(from.Hash(), from.Mode(), fp)
+		page, err := r.page(to.Hash(), to.Mode(), fp)
 		if err != nil {
 			return err
 		}
-		err = fn(page)
+		err = fn(fp, page)
 		if err != nil {
 			return err
 		}
@@ -214,7 +219,7 @@ func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
 			}
 		}
 
-		err = fn(page)
+		err = fn(dir, page)
 		if err != nil {
 			return err
 		}
@@ -223,7 +228,7 @@ func (r *Repo) walkDiff(fn func(*RepoPage) error) error {
 	return nil
 }
 
-func (r *Repo) Walk(fn func(*RepoPage) error) error {
+func (r *Repo) Walk(fn WalkFunc) error {
 	if r.prevTree == nil {
 		return r.walkTree(fn)
 	} else {
