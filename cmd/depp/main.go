@@ -23,6 +23,7 @@ var (
 	force       = flag.Bool("f", false, "force rebuilding of all HTML files")
 	gitURL      = flag.String("u", "", "clone URL for the Git repository")
 	destination = flag.String("d", "./www", "output directory for HTML files")
+	verbose     = flag.Bool("v", false, "print the name of each changed file")
 )
 
 var tmpl *template.Template
@@ -42,7 +43,9 @@ func usage() {
 }
 
 func walkPages(name string, page *gitweb.RepoPage) error {
-	fmt.Println("page:", name)
+	if *verbose {
+		fmt.Println(name)
+	}
 
 	dest := filepath.Join(*destination, name+".html")
 	if page == nil { // file was removed
