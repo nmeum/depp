@@ -26,6 +26,11 @@ var (
 
 var tmpl *template.Template
 
+const (
+	// Name of file used to record the hash of the generated tree object.
+	stateFile = ".tree"
+)
+
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
 		"USAGE: %s [FLAGS] REPOSITORY\n\n"+
@@ -126,12 +131,22 @@ func main() {
 	}
 
 	path := flag.Arg(0)
+	statePath := filepath.Join(*destination, stateFile)
+
 	repo, err := gitweb.NewRepo(path, gitURL, *commits)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer repo.Close()
+	err = repo.ReadState(statePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = generate(repo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = repo.WriteState(statePath)
 	if err != nil {
 		log.Fatal(err)
 	}

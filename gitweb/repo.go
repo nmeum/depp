@@ -33,9 +33,6 @@ type Repo struct {
 const (
 	// File name of the git description file.
 	descFn = "description"
-
-	// File name of the file storing the last build commit.
-	stateFn = ".depp"
 )
 
 func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
@@ -65,19 +62,6 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 		return nil, err
 	}
 
-	commitFile, err := os.Open(filepath.Join(r.Path, stateFn))
-	if err == nil {
-		h, err := readHashFile(commitFile)
-		if err != nil {
-			return nil, err
-		}
-
-		r.prevTree, err = r.git.TreeObject(h)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	// TODO: Make head a public member of the Repository struct.
 	head, err := r.Tip()
 	if err != nil {
@@ -91,9 +75,29 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	return r, nil
 }
 
-// TODO: Close Git repository too
-func (r *Repo) Close() error {
-	stateFile, err := os.Create(filepath.Join(r.Path, stateFn))
+func (r *Repo) ReadState(fp string) error {
+	stateFile, err := os.Open(fp)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	h, err := readHashFile(stateFile)
+	if err != nil {
+		return err
+	}
+
+	r.prevTree, err = r.git.TreeObject(h)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) WriteState(fp string) error {
+	stateFile, err := os.Create(fp)
 	if err != nil {
 		return err
 	}
