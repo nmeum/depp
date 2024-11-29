@@ -22,12 +22,14 @@ CSS files into the binary through Go's [embed][go embed] package.
 ### Features
 
 * Easy to deploy, everything is backed into the binaries (no external dependencies).
-* Pleasantly fast as it only rebuilds files that changed since the last invocation.
+* Blazingly fast as it only rebuilds files that changed since the last invocation.
 * Simple and mobile-friendly web design which can be easily customized.
 
 ### Status
 
-I use this for my own Git server, I am not aware of bugs and consider it largely finished.
+I use this for my own [Git server][8pit git]. I am presently not aware of any
+bugs and consider it mostly finished software. As I use it myself, I am
+committed to maintaining it for the foreseeable future.
 
 ### Installation
 
@@ -86,7 +88,7 @@ as follows:
 		fi
 	done
 	
-	# Only rebuild if a ref for the default ref was pushed
+	# Only rebuild the HTML if the default ref was pushed.
 	[ ${rebuild} -eq 1 ] || exit 0
 	
 	depp -u "git://git.example.org/${name}" \
@@ -128,6 +130,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [stagit website]: http://codemadness.nl/git/stagit/log.html
 [depp website]: https://depp.brause.cc/depp/
 [libgit2 website]: https://libgit2.org/
+[8pit git]: https://git.8pit.net/
 [go website]: https://golang.org/
 [discount website]: http://www.pell.portland.or.us/~orc/Code/discount/
 [go embed]: https://pkg.go.dev/embed
