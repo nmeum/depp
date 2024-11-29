@@ -164,6 +164,37 @@ func (r *Repo) walkTree(fn WalkFunc) error {
 	return nil
 }
 
+// Assuming the file pointed to by fp was deleted in the newTree, check
+// which parent directories are now also deleted implicitly (because they
+// are empty now) and return them as a list.
+func (r *Repo) checkParents(fp string) ([]string, error) {
+	dirFp := filepath.Dir(fp)
+	tree, err := r.prevTree.Tree(dirFp)
+	if err != nil {
+		return []string{}, err
+	}
+
+	var deadParents []string
+	for {
+		if len(tree.Entries) != 1 {
+			break
+		}
+		deadParents = append(deadParents, dirFp)
+
+		dirFp = filepath.Dir(dirFp)
+		if dirFp == "." {
+			break
+		}
+
+		tree, err = r.prevTree.Tree(dirFp)
+		if err != nil {
+			return []string{}, err
+		}
+	}
+
+	return deadParents, nil
+}
+
 func (r *Repo) walkDiff(fn WalkFunc) error {
 	changes, err := object.DiffTree(r.prevTree, r.curTree)
 	if err != nil {
@@ -178,11 +209,26 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 	for _, filePatch := range patch.FilePatches() {
 		from, to := filePatch.Files()
 		if to == nil { // file was removed
-			rebuildDirs[filepath.Dir(from.Path())] = true
 			err = fn(from.Path(), nil)
 			if err != nil {
 				return err
 			}
+
+			deadParents, err := r.checkParents(from.Path())
+			if err != nil {
+				return err
+			}
+
+			for _, p := range deadParents {
+				err = fn(p, nil)
+				if err != nil {
+					return err
+				}
+			}
+
+			lastDead := deadParents[len(deadParents)-1]
+			rebuildDirs[filepath.Dir(lastDead)] = true
+
 			continue
 		} else if from == nil { // created a new file
 			rebuildDirs[filepath.Dir(to.Path())] = true
@@ -216,15 +262,7 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 			page = r.indexPage()
 		} else {
 			entry, err := r.curTree.FindEntry(dir)
-			if err == object.ErrEntryNotFound {
-				// If we can't find the directory anymore, then the file
-				// contained in it was removed and was the only file in it.
-				err = fn(dir, nil)
-				if err != nil {
-					return err
-				}
-				continue
-			} else if err != nil {
+			if err != nil {
 				return err
 			}
 
