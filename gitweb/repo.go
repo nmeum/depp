@@ -168,27 +168,20 @@ func (r *Repo) walkTree(fn WalkFunc) error {
 // which parent directories are now also deleted implicitly (because they
 // are empty now) and return them as a list.
 func (r *Repo) checkParents(fp string) ([]string, error) {
-	dirFp := filepath.Dir(fp)
-	tree, err := r.prevTree.Tree(dirFp)
-	if err != nil {
-		return []string{}, err
-	}
-
 	var deadParents []string
 	for {
-		if len(tree.Entries) != 1 {
-			break
-		}
-		deadParents = append(deadParents, dirFp)
-
-		dirFp = filepath.Dir(dirFp)
-		if dirFp == "." {
+		fp = filepath.Dir(fp)
+		if fp == "." {
 			break
 		}
 
-		tree, err = r.prevTree.Tree(dirFp)
-		if err != nil {
+		_, err := r.curTree.Tree(fp)
+		if err == object.ErrDirectoryNotFound {
+			deadParents = append(deadParents, fp)
+		} else if err != nil {
 			return []string{}, err
+		} else {
+			break // fp is still alive
 		}
 	}
 
@@ -226,7 +219,10 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 				}
 			}
 
-			lastDead := deadParents[len(deadParents)-1]
+			lastDead := from.Path()
+			if len(deadParents) > 0 {
+				lastDead = deadParents[len(deadParents)-1]
+			}
 			rebuildDirs[filepath.Dir(lastDead)] = true
 
 			continue
