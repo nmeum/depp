@@ -79,9 +79,7 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 
 func (r *Repo) ReadState(fp string) error {
 	stateFile, err := os.Open(fp)
-	if errors.Is(err, os.ErrNotExist) {
-		return nil
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 

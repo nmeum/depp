@@ -153,7 +153,7 @@ func main() {
 	}
 	if !*force {
 		err = repo.ReadState(statePath)
-		if err != nil {
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			log.Fatal(err)
 		}
 	}
