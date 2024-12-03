@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -9,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/nmeum/depp/css"
 	"github.com/nmeum/depp/gitweb"
@@ -20,11 +20,18 @@ var templates embed.FS
 
 var (
 	commits     = flag.Uint("c", 5, "amount of recent commits to include")
+	force       = flag.Bool("f", false, "force rebuilding of all HTML files")
 	gitURL      = flag.String("u", "", "clone URL for the Git repository")
 	destination = flag.String("d", "./www", "output directory for HTML files")
+	verbose     = flag.Bool("v", false, "print the name of each changed file")
 )
 
 var tmpl *template.Template
+
+const (
+	// Name of file used to record the hash of the generated tree object.
+	stateFile = ".tree"
+)
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(),
@@ -35,18 +42,31 @@ func usage() {
 	os.Exit(2)
 }
 
-func walkPages(page *gitweb.RepoPage) error {
-	name := page.CurrentFile.Path
-	if isIndexPage(page) {
-		name = "index"
+func walkPages(name string, page *gitweb.RepoPage) error {
+	if *verbose {
+		fmt.Println(name)
 	}
 
-	fp := filepath.Join(*destination, name+".html")
-	err := os.MkdirAll(filepath.Dir(fp), 0755)
+	dest := filepath.Join(*destination, name+".html")
+	if page == nil { // file was removed
+		err := os.Remove(dest)
+		if err != nil {
+			return err
+		}
+
+		// In case name refers to a (now empty) directory:
+		os.Remove(filepath.Join(*destination, name))
+
+		return nil
+	} else if isIndexPage(page) {
+		dest = filepath.Join(*destination, "index.html")
+	}
+
+	err := os.MkdirAll(filepath.Dir(dest), 0755)
 	if err != nil {
 		return err
 	}
-	file, err := os.Create(fp)
+	file, err := os.Create(dest)
 	if err != nil {
 		return err
 	}
@@ -98,19 +118,19 @@ func generate(repo *gitweb.Repo) error {
 		return err
 	}
 
-	err = css.Create(filepath.Join(*destination, "style.css"))
-	if err != nil {
-		return err
+	cssPath := filepath.Join(*destination, "style.css")
+	_, err = os.Stat(cssPath)
+	if *force || errors.Is(err, os.ErrNotExist) {
+		err = css.Create(cssPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func main() {
-	// Time **before** start of file generation.
-	// Will later be used as the mtime/atime of `index.html`.
-	startTime := time.Now().Add(-1 * time.Second)
-
 	flag.Usage = usage
 	flag.Parse()
 
@@ -125,18 +145,24 @@ func main() {
 	}
 
 	path := flag.Arg(0)
+	statePath := filepath.Join(*destination, stateFile)
+
 	repo, err := gitweb.NewRepo(path, gitURL, *commits)
 	if err != nil {
 		log.Fatal(err)
 	}
+	if !*force {
+		err = repo.ReadState(statePath)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			log.Fatal(err)
+		}
+	}
+
 	err = generate(repo)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Reset mtime/atime of index.html to detect untouched files.
-	index := filepath.Join(*destination, "index.html")
-	err = os.Chtimes(index, startTime, startTime)
+	err = repo.WriteState(statePath)
 	if err != nil {
 		log.Fatal(err)
 	}

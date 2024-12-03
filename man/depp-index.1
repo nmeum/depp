@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm depp-index
 .Op Fl d Ar destination
+.Op Fl p Ar num
 .Op Fl s Ar description
 .Op Fl t Ar title
 .Op Fl x
@@ -31,6 +32,11 @@ This directory is created if it does not exist yet.
 By default a
 .Pa www
 subdirectory is created and used in the current directory.
+.It Fl p Ar num
+List
+.Ar num
+repositories per generated web page.
+The default is 20, the special value -1 disable pagination entirely.
 .It Fl s Ar description
 The header of the generated HTML optionally contains a short
 .Ar description

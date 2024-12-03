@@ -1,6 +1,6 @@
 ## README
 
-No frills, single binary, static page generator for Git repositories.
+No frills, static page generator for Git repositories.
 
 ### Motivation
 
@@ -19,27 +19,43 @@ interact with Git repositories. Thereby, allowing the implementation to be
 compiled as a single statically linked binary while also embedding all HTML and
 CSS files into the binary through Go's [embed][go embed] package.
 
+### Features
+
+* Easy to deploy, everything is backed into the binaries (no external dependencies).
+* Blazingly fast as it only rebuilds files that changed since the last invocation.
+* Simple and mobile-friendly web design which can be easily customized.
+
 ### Status
 
-I use this for my own Git server, it presently doesn't have any known
-bugs and the currently implemented feature set works quite well.
-
-### Dependencies
-
-Apart from a [Go toolchain][go website] this software has no external dependencies.
+I use this for my own [Git server][8pit git]. I am presently not aware of any
+bugs and consider it mostly finished software. As I use it myself, I am
+committed to maintaining it for the foreseeable future.
 
 ### Installation
 
-Clone the repository and ran the following commands:
+Installation requires a [Go toolchain][go website]. Assuming a supported Go is
+available, the software can be installed either via `go install` or `make`.
+Both methods will install two binaries: `depp` for generating HTML files on a
+per-repository basis and `depp-index` which can optionally be used to generate
+an HTML index page for listing all hosted git repositories. Both commands are
+further described in the provided man page, a usage example is provided below.
 
-    $ make
-    $ sudo make install
+#### go install
 
-This will install two binaries: `depp` for generating HTML files on a
-per-repository basis and `depp-index` which can optionally be used to
-generate an HTML index page for listing all hosted git repositories.
-Both commands are further described in the provided man page, a usage
-example is provided below.
+To install to the program using `go install` run the following command:
+
+	$ go install github.com/nmeum/depp/...@latest
+
+Note that this will not install additional documentation files, e.g. man pages.
+
+#### make
+
+Clone the repository manually and ran the following commands:
+
+	$ make
+	$ sudo make install
+
+This is the preferred method when packaging this software for a distribution.
 
 ### Usage
 
@@ -72,7 +88,7 @@ as follows:
 		fi
 	done
 	
-	# Only rebuild if a ref for the default ref was pushed
+	# Only rebuild the HTML if the default ref was pushed.
 	[ ${rebuild} -eq 1 ] || exit 0
 	
 	depp -u "git://git.example.org/${name}" \
@@ -96,25 +112,6 @@ Markdown implementation:
 	#!/bin/sh
 	exec markdown -f autolink
 
-### Caveats
-
-Existing HTML files are not tracked, thus the generated HTML for files
-removed from the repository `HEAD` is not automatically removed from
-the depp destination directory. In order to be able to identify HTML
-files not touched by depp the `mtime` and `atime` of `index.html` is set
-to a time *before* the generation of any HTML files on each invocation.
-This allows removing generated HTML for files removed from the
-repository by invoking the following command from the depp destination
-directory:
-
-	$ find . -not -newer index.html -not -path ./index.html -type f \
-		-exec rm {} \+ 2>/dev/null
-
-The above `find(1)` invocation can conveniently be executed from a
-cronjob. Unfortunately, this command does not remove empty directories,
-these need to be handled separately (some `find(1)` implementations
-support `-empty` for this purpose).
-
 ### License
 
 This program is free software: you can redistribute it and/or modify it
@@ -133,6 +130,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>.
 [stagit website]: http://codemadness.nl/git/stagit/log.html
 [depp website]: https://depp.brause.cc/depp/
 [libgit2 website]: https://libgit2.org/
+[8pit git]: https://git.8pit.net/
 [go website]: https://golang.org/
 [discount website]: http://www.pell.portland.or.us/~orc/Code/discount/
 [go embed]: https://pkg.go.dev/embed

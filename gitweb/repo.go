@@ -19,7 +19,9 @@ import (
 )
 
 type Repo struct {
-	head       *object.Commit
+	curTree  *object.Tree
+	prevTree *object.Tree // may be nil
+
 	git        *git.Repository
 	maxCommits uint
 
@@ -28,8 +30,12 @@ type Repo struct {
 	URL   string
 }
 
-// File name of the git description file.
-const descFn = "description"
+type WalkFunc func(string, *RepoPage) error
+
+const (
+	// File name of the git description file.
+	descFn = "description"
+)
 
 func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	absFp, err := filepath.Abs(fp)
@@ -37,15 +43,9 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 		return nil, err
 	}
 
-	r := &Repo{Path: absFp, maxCommits: commits}
-	r.Title = filepath.Base(absFp)
+	r := &Repo{Path: absFp, Title: repoTitle(absFp), maxCommits: commits}
 	if cloneURL != nil {
 		r.URL = cloneURL.String()
-	}
-
-	ext := strings.LastIndex(r.Title, ".git")
-	if ext > 0 {
-		r.Title = r.Title[0:ext]
 	}
 
 	fs := osfs.New(absFp)
@@ -59,8 +59,17 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	}
 
 	s := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
-
 	r.git, err = git.Open(s, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Make head a public member of the Repository struct.
+	head, err := r.Tip()
+	if err != nil {
+		return nil, err
+	}
+	r.curTree, err = head.Tree()
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +77,40 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 	return r, nil
 }
 
-func (r *Repo) Tip() (*object.Commit, error) {
-	if r.head != nil {
-		return r.head, nil
+func (r *Repo) ReadState(fp string) error {
+	stateFile, err := os.Open(fp)
+	if err != nil {
+		return err
 	}
 
+	h, err := readHashFile(stateFile)
+	if err != nil {
+		return err
+	}
+
+	r.prevTree, err = r.git.TreeObject(h)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) WriteState(fp string) error {
+	stateFile, err := os.Create(fp)
+	if err != nil {
+		return err
+	}
+
+	_, err = stateFile.WriteString(r.curTree.Hash.String())
+	if err != nil {
+		return err
+	}
+
+	return stateFile.Close()
+}
+
+func (r *Repo) Tip() (*object.Commit, error) {
 	head, err := r.git.Head()
 	if err != nil {
 		return nil, err
@@ -84,33 +122,24 @@ func (r *Repo) Tip() (*object.Commit, error) {
 		return nil, err
 	}
 
-	r.head = commit
 	return commit, nil
 }
 
-func (r *Repo) Walk(fn func(*RepoPage) error) error {
-	head, err := r.Tip()
-	if err != nil {
-		return err
-	}
-
-	tree, err := head.Tree()
-	if err != nil {
-		return err
-	}
-
-	// . is not included by tree.Walk()
-	indexPage := &RepoPage{
+func (r *Repo) indexPage() *RepoPage {
+	return &RepoPage{
 		Repo:        r,
-		tree:        tree,
-		CurrentFile: RepoFile{filemode.Dir, ""},
+		tree:        r.curTree,
+		CurrentFile: RepoFile{mode: filemode.Dir, Path: ""},
 	}
-	err = fn(indexPage)
+}
+
+func (r *Repo) walkTree(fn WalkFunc) error {
+	err := fn(".", r.indexPage())
 	if err != nil {
 		return err
 	}
 
-	walker := object.NewTreeWalker(tree, true, nil)
+	walker := object.NewTreeWalker(r.curTree, true, nil)
 	defer walker.Close()
 	for {
 		fp, entry, err := walker.Next()
@@ -120,16 +149,11 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 			return err
 		}
 
-		repoFile := RepoFile{
-			mode: entry.Mode,
-			Path: filepath.ToSlash(fp),
-		}
-		page, err := r.page(entry.Hash, repoFile)
+		page, err := r.page(entry.Hash, entry.Mode, fp)
 		if err != nil {
 			return err
 		}
-
-		err = fn(page)
+		err = fn(fp, page)
 		if err != nil {
 			return err
 		}
@@ -138,14 +162,135 @@ func (r *Repo) Walk(fn func(*RepoPage) error) error {
 	return nil
 }
 
-func (r *Repo) page(hash plumbing.Hash, rf RepoFile) (*RepoPage, error) {
-	var err error
+// Assuming the file pointed to by fp was deleted in the newTree, check
+// which parent directories are now also deleted implicitly (because they
+// are empty now) and return them as a list.
+func (r *Repo) checkParents(fp string) ([]string, error) {
+	var deadParents []string
+	for {
+		fp = filepath.Dir(fp)
+		if fp == "." {
+			break
+		}
+
+		_, err := r.curTree.Tree(fp)
+		if err == object.ErrDirectoryNotFound {
+			deadParents = append(deadParents, fp)
+		} else if err != nil {
+			return []string{}, err
+		} else {
+			break // fp is still alive
+		}
+	}
+
+	return deadParents, nil
+}
+
+func (r *Repo) walkDiff(fn WalkFunc) error {
+	changes, err := object.DiffTree(r.prevTree, r.curTree)
+	if err != nil {
+		return err
+	}
+	patch, err := changes.Patch()
+	if err != nil {
+		return err
+	}
+
+	rebuildDirs := make(map[string]bool)
+	for _, filePatch := range patch.FilePatches() {
+		from, to := filePatch.Files()
+		if to == nil { // file was removed
+			err = fn(from.Path(), nil)
+			if err != nil {
+				return err
+			}
+
+			deadParents, err := r.checkParents(from.Path())
+			if err != nil {
+				return err
+			}
+
+			for _, p := range deadParents {
+				err = fn(p, nil)
+				if err != nil {
+					return err
+				}
+			}
+
+			lastDead := from.Path()
+			if len(deadParents) > 0 {
+				lastDead = deadParents[len(deadParents)-1]
+			}
+			rebuildDirs[filepath.Dir(lastDead)] = true
+
+			continue
+		} else if from == nil { // created a new file
+			rebuildDirs[filepath.Dir(to.Path())] = true
+		}
+
+		fp := to.Path()
+		if isReadme(fp) {
+			rebuildDirs[filepath.Dir(fp)] = true
+		}
+
+		page, err := r.page(to.Hash(), to.Mode(), fp)
+		if err != nil {
+			return err
+		}
+		err = fn(fp, page)
+		if err != nil {
+			return err
+		}
+	}
+
+	// If the tree changed, assume that we need to rebuild the index.
+	// For example, because the commits are listed there. This a somewhat
+	// depp-specific assumption which is hackily backed into the gitweb library.
+	if r.prevTree.Hash != r.curTree.Hash {
+		rebuildDirs["."] = true
+	}
+
+	for dir, _ := range rebuildDirs {
+		var page *RepoPage
+		if dir == "." {
+			page = r.indexPage()
+		} else {
+			entry, err := r.curTree.FindEntry(dir)
+			if err != nil {
+				return err
+			}
+
+			page, err = r.page(entry.Hash, entry.Mode, dir)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = fn(dir, page)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Repo) Walk(fn WalkFunc) error {
+	if r.prevTree == nil {
+		return r.walkTree(fn)
+	} else {
+		return r.walkDiff(fn)
+	}
+}
+
+func (r *Repo) page(hash plumbing.Hash, mode filemode.FileMode, fp string) (*RepoPage, error) {
 	page := &RepoPage{
 		Repo:        r,
 		tree:        nil,
-		CurrentFile: rf,
+		CurrentFile: RepoFile{mode, filepath.ToSlash(fp)},
 	}
 
+	var err error
 	if page.CurrentFile.IsDir() {
 		page.tree, err = r.git.TreeObject(hash)
 		if err != nil {

@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 
 	"github.com/go-git/go-git/v5"
@@ -26,8 +25,6 @@ type CommitInfo struct {
 	Commits []*object.Commit
 	Total   uint
 }
-
-var readmeRegex = regexp.MustCompile(`README|(README\.[a-zA-Z0-9]+)`)
 
 var (
 	ExpectedDirectory = errors.New("Expected directory")
@@ -124,7 +121,7 @@ func (r *RepoPage) Submodule(file *RepoFile) (*object.File, error) {
 	return commit.File(".gitmodules")
 }
 
-func (r *RepoPage) matchFile(reg *regexp.Regexp) (string, error) {
+func (r *RepoPage) findReadme() (string, error) {
 	var result string
 
 	walker := object.NewTreeWalker(r.tree, false, nil)
@@ -137,7 +134,7 @@ func (r *RepoPage) matchFile(reg *regexp.Regexp) (string, error) {
 			return "", err
 		}
 
-		if reg.MatchString(filepath.Base(f.Name)) {
+		if isReadme(f.Name) {
 			result = f.Name
 			break
 		}
@@ -155,7 +152,7 @@ func (r *RepoPage) Readme() (string, error) {
 		return "", ExpectedDirectory
 	}
 
-	fp, err := r.matchFile(readmeRegex)
+	fp, err := r.findReadme()
 	if err != nil {
 		return "", err
 	}
