@@ -66,7 +66,7 @@ func (r *RepoPage) Files() ([]RepoFile, error) {
 func (r *RepoPage) Commits() (*CommitInfo, error) {
 	var total, numCommits uint
 
-	logOpts := &git.LogOptions{}
+	logOpts := &git.LogOptions{Order: git.LogOrderDFSPost}
 	if r.CurrentFile.Path != "" {
 		logOpts.PathFilter = func(fp string) bool {
 			return fp == r.CurrentFile.Path
