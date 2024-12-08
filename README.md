@@ -1,6 +1,6 @@
 ## README
 
-No frills, static page generator for Git repositories.
+No frills static page generator for Git repositories.
 
 ### Motivation
 
