@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -50,7 +51,7 @@ func walkPages(name string, page *gitweb.RepoPage) error {
 	dest := filepath.Join(*destination, name+".html")
 	if page == nil { // file was removed
 		err := os.Remove(dest)
-		if err != nil {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
 
