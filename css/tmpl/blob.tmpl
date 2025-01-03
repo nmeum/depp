@@ -8,6 +8,9 @@ pre.blob a {
 
 	{{/* Ensure background is not overwritten on :target */}}
 	background-color: var(--color-white) !important;
+
+	{{/* Ensure line numbers are not selected */}}
+	user-select: none;
 }
 
 pre.blob a:hover {
