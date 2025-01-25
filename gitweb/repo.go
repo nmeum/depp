@@ -225,7 +225,20 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 
 			continue
 		} else if from == nil { // created a new file
-			rebuildDirs[filepath.Dir(to.Path())] = true
+			dest := to.Path()
+
+			// A path element of the new path may be an empty directory, in which
+			// case we won't see it in .FilePatches() and need to identify it here.
+			pathElems := strings.Split(dest, string(filepath.Separator))
+			for i := 1; i < len(pathElems); i++ {
+				elemPath := filepath.Join(pathElems[:i]...)
+				_, err := r.prevTree.FindEntry(elemPath)
+				if errors.Is(err, object.ErrEntryNotFound) {
+					rebuildDirs[elemPath] = true
+				}
+			}
+
+			rebuildDirs[filepath.Dir(dest)] = true
 		}
 
 		fp := to.Path()
