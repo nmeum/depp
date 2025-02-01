@@ -4,6 +4,10 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
+		{{ if .Description -}}
+			<meta name="description" content="{{ .Description }}">
+		{{- end }}
+
 		{{ if (isIndexPage .) }}
 			<title>{{ .Title }}{{ if .Description }} - {{ .Description }}{{ end }}</title>
 		{{ else }}
