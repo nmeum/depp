@@ -8,11 +8,11 @@
 			<meta name="description" content="{{ .Description }}">
 		{{- end }}
 
-		{{ if (isIndexPage .) }}
+		{{ if (isIndexPage .) -}}
 			<title>{{ .Title }}{{ if .Description }} - {{ .Description }}{{ end }}</title>
-		{{ else }}
+		{{- else -}}
 			<title>{{ .Title }} - {{ .CurrentFile.Name }}</title>
-		{{ end }}
+		{{- end }}
 
 		<link rel="stylesheet" href="{{ $base }}style.css">
 		<script>
