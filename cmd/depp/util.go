@@ -39,7 +39,13 @@ func getLines(data string) []string {
 		data = data[0 : len(data)-1]
 	}
 
-	return strings.Split(data, "\n")
+	lines := strings.Split(data, "\n")
+	for i, line := range lines {
+		// Deal with files containing DOS line endings.
+		lines[i] = strings.TrimRight(line, "\r")
+	}
+
+	return lines
 }
 
 func padNumber(maxnum int, curnum int) template.HTML {
