@@ -162,28 +162,27 @@ func (r *Repo) walkTree(fn WalkFunc) error {
 	return nil
 }
 
-// Assuming the file pointed to by fp was deleted in the newTree, check
-// which parent directories are now also deleted implicitly (because they
-// are empty now) and return them as a list.
-func (r *Repo) checkParents(fp string) ([]string, error) {
-	var deadParents []string
+// Returns a list of all parent directory of the given fp, which are not present
+// in the given tree. For example, because they have been removed in the tree.
+func (r *Repo) changedParents(tree *object.Tree, fp string) ([]string, error) {
+	var parents []string
 	for {
 		fp = filepath.Dir(fp)
 		if fp == "." {
 			break
 		}
 
-		_, err := r.curTree.Tree(fp)
+		_, err := tree.Tree(fp)
 		if err == object.ErrDirectoryNotFound {
-			deadParents = append(deadParents, fp)
+			parents = append(parents, fp)
 		} else if err != nil {
 			return []string{}, err
 		} else {
-			break // fp is still alive
+			break // fp is unchanged
 		}
 	}
 
-	return deadParents, nil
+	return parents, nil
 }
 
 func (r *Repo) walkDiff(fn WalkFunc) error {
@@ -205,7 +204,10 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 				return err
 			}
 
-			deadParents, err := r.checkParents(from.Path())
+			// Assuming the file pointed to by fp was deleted in the
+			// newTree, check which parent directories are now also
+			// deleted implicitly (because they are empty now).
+			deadParents, err := r.changedParents(r.curTree, from.Path())
 			if err != nil {
 				return err
 			}
@@ -227,18 +229,17 @@ func (r *Repo) walkDiff(fn WalkFunc) error {
 		} else if from == nil { // created a new file
 			dest := to.Path()
 
-			// A path element of the new path may be an empty directory, in which
-			// case we won't see it in .FilePatches() and need to identify it here.
-			pathElems := strings.Split(dest, string(filepath.Separator))
-			for i := 1; i < len(pathElems); i++ {
-				elemPath := filepath.Join(pathElems[:i]...)
-				_, err := r.prevTree.FindEntry(elemPath)
-				if errors.Is(err, object.ErrEntryNotFound) {
-					rebuildDirs[elemPath] = true
-				}
+			newParents, err := r.changedParents(r.prevTree, dest)
+			if err != nil {
+				return err
 			}
-
-			rebuildDirs[filepath.Dir(dest)] = true
+			lastNew := dest
+			for _, np := range newParents {
+				lastNew = np
+				rebuildDirs[np] = true
+			}
+			// rebuild directory index page containing the last new entry.
+			rebuildDirs[filepath.Dir(lastNew)] = true
 		}
 
 		fp := to.Path()
