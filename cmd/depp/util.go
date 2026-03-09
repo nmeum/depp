@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/nmeum/depp/gitweb"
+	"git.8pit.net/depp/gitweb"
 )
 
 func summarize(msg string) string {

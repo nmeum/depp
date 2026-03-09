@@ -1,4 +1,4 @@
-module github.com/nmeum/depp
+module git.8pit.net/depp
 
 go 1.25.0
 

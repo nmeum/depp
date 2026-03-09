@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/nmeum/depp/gitweb"
+	"git.8pit.net/depp/gitweb"
 )
 
 const renderScript = "git-render-readme"
