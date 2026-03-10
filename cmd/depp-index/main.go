@@ -11,8 +11,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/nmeum/depp/css"
-	"github.com/nmeum/depp/gitweb"
+	"git.8pit.net/depp/css"
+	"git.8pit.net/depp/gitweb"
 )
 
 type Repo struct {

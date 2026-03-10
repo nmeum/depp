@@ -44,7 +44,7 @@ further described in the provided man page, a usage example is provided below.
 
 To install to the program using `go install` run the following command:
 
-	$ go install github.com/nmeum/depp/...@latest
+	$ go install git.8pit.net/depp/...@latest
 
 Note that this will not install additional documentation files, e.g. man pages.
 

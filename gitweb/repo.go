@@ -2,6 +2,7 @@ package gitweb
 
 import (
 	"errors"
+	"html/template"
 	"io"
 	"net/url"
 	"os"
@@ -18,6 +19,10 @@ import (
 	"github.com/go-git/go-billy/v5/osfs"
 )
 
+type Config struct {
+	HeaderExtra template.HTML
+}
+
 type Repo struct {
 	curTree  *object.Tree
 	prevTree *object.Tree // may be nil
@@ -25,6 +30,7 @@ type Repo struct {
 	git        *git.Repository
 	maxCommits uint
 
+	Conf  Config
 	Path  string
 	Title string
 	URL   string
@@ -35,6 +41,9 @@ type WalkFunc func(string, *RepoPage) error
 const (
 	// File name of the git description file.
 	descFn = "description"
+
+	// Name of the depp-specific Git configuration section.
+	confSec = "depp"
 )
 
 func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
@@ -74,7 +83,31 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 		return nil, err
 	}
 
+	r.Conf, err = r.loadConfig()
+	if err != nil {
+		return nil, err
+	}
+
 	return r, nil
+}
+
+func (r *Repo) loadConfig() (Config, error) {
+	c, err := r.git.Config()
+	if err != nil {
+		return Config{}, err
+	}
+
+	raw := c.Raw
+	if !raw.HasSection(confSec) {
+		return Config{}, nil
+	}
+
+	sec := raw.Section(confSec)
+	cnf := Config{
+		HeaderExtra: template.HTML(sec.Option("extra-head-content")),
+	}
+
+	return cnf, nil
 }
 
 func (r *Repo) ReadState(fp string) error {
