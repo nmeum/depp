@@ -1,4 +1,4 @@
-.Dd $Mdocdate: November 28 2024 $
+.Dd $Mdocdate: May 14 2026 $
 .Dt DEPP 1
 .Os
 .Sh NAME
@@ -59,6 +59,14 @@ used to clone the repository.
 If provided, this information is displayed in the header of each generated HTML page.
 .It Fl v
 Print the name of each file that changed since the last invocation.
+.El
+.Pp
+Additional configuration options can be set via
+.Xr git-config 1 :
+.Bl -tag -width section -offset 2n
+.It Ar depp.extra-head-content
+Extra content to include in the <head> element of the HTML output.
+Useful, for example, for hosting Go modules.
 .El
 .Sh FILES
 The following special files in bare Git repositories are recognized:
