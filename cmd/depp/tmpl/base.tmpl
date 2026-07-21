@@ -51,7 +51,7 @@
 				<p>{{ .Description }}</p>
 			{{- end }}
 			{{ if .URL -}}
-				<p class="clone">git clone <code>{{ .URL }}</code></p>
+				<p class="clone">git clone <a rel="vcs-git" href="{{ .URL }}" title="{{ .Title }} Git repository">{{ .URL }}</a></p>
 			{{- end }}
 		</header>
 

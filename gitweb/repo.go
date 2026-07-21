@@ -2,6 +2,7 @@ package gitweb
 
 import (
 	"errors"
+	"html/template"
 	"io"
 	"net/url"
 	"os"
@@ -28,7 +29,7 @@ type Repo struct {
 	Conf  Config
 	Path  string
 	Title string
-	URL   string
+	URL   template.URL
 }
 
 type WalkFunc func(string, *RepoPage) error
@@ -46,7 +47,7 @@ func NewRepo(fp string, cloneURL *url.URL, commits uint) (*Repo, error) {
 
 	r := &Repo{Path: absFp, Title: repoTitle(absFp), maxCommits: commits}
 	if cloneURL != nil {
-		r.URL = cloneURL.String()
+		r.URL = template.URL(cloneURL.String())
 	}
 
 	fs := osfs.New(absFp)
