@@ -30,7 +30,7 @@ a {
 	color: var(--color-blue);
 	text-decoration: none;
 }
-a:hover, ::selection {
+a:not(:has(img)):hover, ::selection {
 	color: var(--color-white);
 	background-color: var(--color-blue);
 	text-shadow: none;
