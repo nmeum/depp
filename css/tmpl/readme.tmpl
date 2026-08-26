@@ -42,6 +42,11 @@
 	background: var(--color-athens-grey);
 }
 
+/* Needed to fix background color for links with <code> children. */
+#readme a:hover code {
+	background-color: var(--color-blue);
+}
+
 #readme p {
 	padding: 5px 0px 5px 0px;
 }
